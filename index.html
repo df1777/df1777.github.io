@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="上传文字和图片，自动生成适合微信公众号的图文排版。" />
+  <title>墨排｜公众号排版助手</title>
+  <style>
+    :root{--ink:#20202a;--muted:#77758a;--line:#ebe8f2;--brand:#7057d9;--brand2:#9c8af0;--paper:#fff;--bg:#f6f4fb;--shadow:0 16px 46px rgba(54,38,102,.12)}
+    *{box-sizing:border-box} body{margin:0;background:linear-gradient(145deg,#f8f7fc,#f2eff9);color:var(--ink);font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh}
+    button,input,textarea,select{font:inherit} button{cursor:pointer}.app{min-height:100vh;display:flex;flex-direction:column}
+    header{height:68px;padding:0 28px;background:rgba(255,255,255,.86);backdrop-filter:blur(18px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+    .brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.04em}.logo{width:36px;height:36px;border-radius:12px;background:linear-gradient(140deg,#5f47c6,#9a86ef);display:grid;place-items:center;color:white;box-shadow:0 8px 18px rgba(112,87,217,.28)}
+    .tag{font-size:12px;color:var(--brand);background:#f0ecff;border:1px solid #e2dafd;padding:5px 9px;border-radius:99px;margin-left:8px}
+    .header-actions{display:flex;gap:10px}.btn{border:0;border-radius:10px;padding:10px 16px;font-weight:650;transition:.18s}.btn:hover{transform:translateY(-1px)}.btn-primary{color:white;background:var(--brand);box-shadow:0 7px 17px rgba(112,87,217,.25)}.btn-soft{color:#4e466a;background:#f0edf8}.btn-outline{color:#544b70;background:white;border:1px solid var(--line)}
+    main{display:grid;grid-template-columns:minmax(390px,1fr) minmax(430px,1fr);gap:18px;padding:18px;min-height:calc(100vh - 68px)}
+    .panel{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 35px rgba(52,38,89,.06);overflow:hidden}.panel-title{height:52px;padding:0 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;font-weight:750}.step{color:var(--brand);font-size:12px;background:#f1edff;padding:5px 9px;border-radius:99px}
+    .editor{display:grid;grid-template-columns:1fr 218px;min-height:calc(100vh - 157px)}.form{padding:20px;border-right:1px solid var(--line);overflow:auto}.sidebar{padding:16px;background:#fbfaff;overflow:auto}
+    label{display:block;font-size:13px;font-weight:700;margin:0 0 8px}.field{margin-bottom:16px}.input,.textarea{width:100%;border:1px solid #ddd9e8;border-radius:11px;background:#fff;color:var(--ink);outline:none;transition:.2s}.input{padding:11px 13px}.textarea{padding:14px;min-height:300px;resize:vertical;line-height:1.72}.input:focus,.textarea:focus{border-color:#a696ec;box-shadow:0 0 0 3px rgba(112,87,217,.09)}
+    .hint{font-size:12px;color:var(--muted);line-height:1.55}.upload-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.upload{border:1px dashed #bcb1e8;background:#faf8ff;color:#61558f;border-radius:12px;padding:13px 10px;text-align:center;font-size:13px;font-weight:650;cursor:pointer}.upload:hover{background:#f3efff}.upload input{display:none}
+    .section-head{font-size:12px;color:#8a849a;text-transform:uppercase;letter-spacing:.09em;font-weight:750;margin:4px 0 10px}.templates{display:grid;gap:8px}.template{border:1px solid var(--line);background:#fff;border-radius:11px;padding:10px;display:flex;align-items:center;gap:10px;text-align:left}.template.active{border-color:#8e7ae3;box-shadow:0 0 0 2px #eee9ff}.swatch{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:#fff;font-weight:800;font-family:serif}.template small{display:block;color:#8b8498;margin-top:2px}
+    .control{margin:15px 0}.control-top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px}.range{width:100%;accent-color:var(--brand)}.image-list{display:grid;gap:8px;margin-top:10px}.image-item{display:grid;grid-template-columns:42px 1fr auto;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);padding:6px;border-radius:9px}.thumb{width:42px;height:42px;object-fit:cover;border-radius:6px}.image-name{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tiny{border:0;background:#eeeaf8;color:#645a80;border-radius:7px;width:26px;height:26px}.resource{display:block;text-decoration:none;color:#554c6d;background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px 10px;font-size:12px;margin-bottom:7px}.resource:hover{border-color:#a99ce0}
+    .preview-panel{display:flex;flex-direction:column}.preview-toolbar{padding:0 18px;height:52px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}.preview-actions{display:flex;gap:8px}.preview-wrap{flex:1;display:grid;place-items:center;padding:28px;background-color:#eae6f1;background-image:radial-gradient(#d5cedf 1px,transparent 1px);background-size:20px 20px;overflow:auto}.phone{width:390px;max-width:100%;min-height:690px;background:#fff;border:9px solid #24222c;border-radius:36px;box-shadow:var(--shadow);overflow:hidden}.phone-top{height:32px;background:#24222c;display:flex;justify-content:center}.notch{width:112px;height:20px;border-radius:0 0 14px 14px;background:#17161c}.wechat-bar{height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #eee;color:#34323a;font-size:14px}.article{padding:25px 20px 55px;min-height:600px}.empty{padding:100px 30px;text-align:center;color:#9690a4}.empty-icon{font-size:36px;margin-bottom:12px}
+    .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);opacity:0;background:#24212d;color:#fff;border-radius:10px;padding:11px 16px;font-size:13px;transition:.25s;z-index:100;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
+    .modal{position:fixed;inset:0;background:rgba(25,20,36,.45);display:none;place-items:center;z-index:50;padding:20px}.modal.open{display:grid}.modal-card{width:min(620px,100%);max-height:80vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:24px}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.close{border:0;background:#eeeaf5;border-radius:8px;width:32px;height:32px}.code{background:#211f29;color:#e8e2f5;padding:14px;border-radius:10px;font:12px/1.6 Consolas,monospace;white-space:pre-wrap;word-break:break-all;max-height:380px;overflow:auto}
+    @media(max-width:980px){main{grid-template-columns:1fr}.editor{min-height:auto}.preview-wrap{min-height:790px}}
+    @media(max-width:620px){header{padding:0 14px}.tag,.header-actions .btn-soft{display:none}main{padding:10px}.editor{grid-template-columns:1fr}.form{border-right:0}.sidebar{border-top:1px solid var(--line)}.upload-row{grid-template-columns:1fr}.preview-wrap{padding:12px}.phone{border-width:5px;border-radius:26px}.preview-actions .btn-outline{display:none}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><div class="logo">墨</div><span>墨排</span><span class="tag">公众号排版助手</span></div>
+    <div class="header-actions"><button class="btn btn-soft" id="sampleBtn">载入示例</button><button class="btn btn-primary" id="copyBtn">复制到公众号</button></div>
+  </header>
+  <main>
+    <section class="panel">
+      <div class="panel-title"><span>内容与样式</span><span class="step">上传即可排版</span></div>
+      <div class="editor">
+        <div class="form">
+          <div class="field"><label for="title">文章标题</label><input class="input" id="title" placeholder="输入推文标题" /></div>
+          <div class="field"><label for="subtitle">摘要 / 导语（可选）</label><input class="input" id="subtitle" placeholder="一句话说明这篇文章的重点" /></div>
+          <div class="field">
+            <label for="content">正文内容</label>
+            <textarea class="textarea" id="content" placeholder="直接粘贴文字即可。\n\n使用“## 小标题”创建章节标题；空行会自动分段；以“>”开头会生成引用卡片。"></textarea>
+            <div class="hint">支持普通文本和 Markdown 小标题。系统会自动清理多余空行并生成适合手机阅读的段落。</div>
+          </div>
+          <div class="upload-row">
+            <label class="upload">📄 上传 TXT / MD<input id="textFile" type="file" accept=".txt,.md,text/plain,text/markdown" /></label>
+            <label class="upload">🖼️ 批量上传图片<input id="imageFile" type="file" accept="image/*" multiple /></label>
+          </div>
+          <div class="image-list" id="imageList"></div>
+        </div>
+        <aside class="sidebar">
+          <div class="section-head">排版模板</div>
+          <div class="templates" id="templates">
+            <button class="template active" data-theme="purple"><span class="swatch" style="background:#7057d9">Aa</span><span>清爽紫<small>课程与活动</small></span></button>
+            <button class="template" data-theme="blue"><span class="swatch" style="background:#176b87">Aa</span><span>学术蓝<small>研究与科普</small></span></button>
+            <button class="template" data-theme="orange"><span class="swatch" style="background:#d87635">Aa</span><span>温暖橙<small>故事与分享</small></span></button>
+            <button class="template" data-theme="black"><span class="swatch" style="background:#28282d">Aa</span><span>极简黑<small>资讯与观点</small></span></button>
+          </div>
+          <div class="control"><div class="control-top"><span>正文字号</span><b id="fontVal">16px</b></div><input class="range" id="fontSize" type="range" min="14" max="19" value="16" /></div>
+          <div class="control"><div class="control-top"><span>行间距</span><b id="lineVal">1.85</b></div><input class="range" id="lineHeight" type="range" min="16" max="22" value="19" /></div>
+          <div class="section-head" style="margin-top:22px">图片资源参考</div>
+          <a class="resource" href="https://unsplash.com/" target="_blank" rel="noreferrer">Unsplash · 摄影图库 ↗</a>
+          <a class="resource" href="https://www.pexels.com/zh-cn/" target="_blank" rel="noreferrer">Pexels · 免费图片 ↗</a>
+          <a class="resource" href="https://www.iconfont.cn/" target="_blank" rel="noreferrer">Iconfont · 图标素材 ↗</a>
+          <div class="hint">外部素材需自行确认授权范围。后续可接入你的企业素材库或指定 API。</div>
+        </aside>
+      </div>
+    </section>
+    <section class="panel preview-panel">
+      <div class="preview-toolbar"><b>微信手机预览</b><div class="preview-actions"><button class="btn btn-outline" id="htmlBtn">查看 HTML</button><button class="btn btn-outline" id="downloadBtn">导出文件</button></div></div>
+      <div class="preview-wrap">
+        <div class="phone"><div class="phone-top"><div class="notch"></div></div><div class="wechat-bar"><span>‹</span><span>公众号文章预览</span><span>•••</span></div><article class="article" id="preview"><div class="empty"><div class="empty-icon">✦</div>在左侧输入文章内容<br/>这里会实时生成排版</div></article></div>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+<div class="modal" id="modal"><div class="modal-card"><div class="modal-head"><b>可复制的公众号 HTML</b><button class="close" id="closeModal">×</button></div><div class="hint" style="margin-bottom:10px">推荐直接点击“复制到公众号”；此处代码用于开发检查或二次编辑。</div><div class="code" id="code"></div></div></div>
+<script>
+  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+  const state={theme:'purple',fontSize:16,lineHeight:1.9,images:[]};
+  const themes={
+    purple:{accent:'#7057d9',soft:'#f2efff',ink:'#272431',line:'#ded7fb'},
+    blue:{accent:'#176b87',soft:'#edf7fa',ink:'#25343a',line:'#cce5ec'},
+    orange:{accent:'#d87635',soft:'#fff4eb',ink:'#3c2d26',line:'#f3d3bc'},
+    black:{accent:'#28282d',soft:'#f2f2f3',ink:'#26262a',line:'#d9d9dc'}
+  };
+  function esc(v=''){return v.replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]))}
+  function parseContent(raw){
+    const lines=raw.replace(/\r/g,'').split('\n'); let blocks=[],buf=[];
+    const flush=()=>{if(buf.length){const t=buf.join(' ').trim();if(t)blocks.push({type:'p',text:t});buf=[]}};
+    lines.forEach(line=>{const t=line.trim();if(!t){flush();return}if(/^#{1,3}\s+/.test(t)){flush();blocks.push({type:'h',text:t.replace(/^#{1,3}\s+/, '')})}else if(/^>\s?/.test(t)){flush();blocks.push({type:'q',text:t.replace(/^>\s?/, '')})}else{buf.push(t)}});flush();return blocks;
+  }
+  function styleMap(){const t=themes[state.theme];return {t,
+    title:`margin:0 0 12px;color:${t.ink};font-size:26px;line-height:1.35;font-weight:800;letter-spacing:.02em;`,
+    sub:`margin:0 0 22px;padding:12px 14px;background:${t.soft};border-left:3px solid ${t.accent};color:#6c6873;font-size:14px;line-height:1.65;`,
+    h:`margin:30px 0 14px;color:${t.accent};font-size:19px;line-height:1.5;font-weight:800;display:flex;align-items:center;gap:8px;`,
+    p:`margin:0 0 18px;color:${t.ink};font-size:${state.fontSize}px;line-height:${state.lineHeight};text-align:justify;letter-spacing:.02em;`,
+    q:`margin:20px 0;padding:16px 17px;background:${t.soft};border-radius:10px;color:#5c5864;font-size:${Math.max(14,state.fontSize-1)}px;line-height:${state.lineHeight};`,
+    img:`display:block;width:100%;height:auto;margin:22px auto 7px;border-radius:9px;`,
+    cap:`margin:0 0 20px;color:#99949f;font-size:12px;line-height:1.5;text-align:center;`
+  }}
+  function buildHtml(){
+    const title=$('#title').value.trim(), sub=$('#subtitle').value.trim(), blocks=parseContent($('#content').value), s=styleMap();
+    if(!title&&!sub&&!blocks.length&&!state.images.length)return '';
+    let html=`<section style="font-family:'PingFang SC','Microsoft YaHei',sans-serif;max-width:100%;word-break:break-word;">`;
+    if(title)html+=`<h1 style="${s.title}">${esc(title)}</h1>`;
+    if(sub)html+=`<section style="${s.sub}">${esc(sub)}</section>`;
+    let imageIndex=0; const interval=Math.max(1,Math.ceil(blocks.length/Math.max(1,state.images.length)));
+    blocks.forEach((b,i)=>{
+      if(b.type==='h')html+=`<h2 style="${s.h}"><span style="display:inline-block;width:7px;height:19px;border-radius:5px;background:${s.t.accent};"></span>${esc(b.text)}</h2>`;
+      else if(b.type==='q')html+=`<section style="${s.q}">${esc(b.text)}</section>`;
+      else html+=`<p style="${s.p}">${esc(b.text)}</p>`;
+      if(state.images[imageIndex]&&((i+1)%interval===0)){const im=state.images[imageIndex++];html+=`<img src="${im.url}" alt="${esc(im.name)}" style="${s.img}"/><p style="${s.cap}">图片 ${imageIndex}</p>`}
+    });
+    while(state.images[imageIndex]){const im=state.images[imageIndex++];html+=`<img src="${im.url}" alt="${esc(im.name)}" style="${s.img}"/><p style="${s.cap}">图片 ${imageIndex}</p>`}
+    html+=`<p style="margin:34px 0 0;text-align:center;color:${s.t.accent};font-size:12px;letter-spacing:.18em;">— END —</p></section>`;return html;
+  }
+  function render(){const html=buildHtml();$('#preview').innerHTML=html||'<div class="empty"><div class="empty-icon">✦</div>在左侧输入文章内容<br/>这里会实时生成排版</div>';$('#code').textContent=html}
+  function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>el.classList.remove('show'),2200)}
+  ['title','subtitle','content'].forEach(id=>$('#'+id).addEventListener('input',render));
+  $('#templates').addEventListener('click',e=>{const b=e.target.closest('.template');if(!b)return;$$('.template').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.theme=b.dataset.theme;render()});
+  $('#fontSize').addEventListener('input',e=>{state.fontSize=+e.target.value;$('#fontVal').textContent=state.fontSize+'px';render()});
+  $('#lineHeight').addEventListener('input',e=>{state.lineHeight=(+e.target.value/10);$('#lineVal').textContent=state.lineHeight.toFixed(2);render()});
+  $('#textFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$('#content').value=r.result;render();toast('文字已导入并完成排版')};r.readAsText(f,'utf-8')});
+  $('#imageFile').addEventListener('change',e=>{[...e.target.files].forEach(f=>state.images.push({name:f.name,url:URL.createObjectURL(f)}));renderImages();render();toast(`已添加 ${e.target.files.length} 张图片`) });
+  function renderImages(){const box=$('#imageList');box.innerHTML=state.images.map((im,i)=>`<div class="image-item"><img class="thumb" src="${im.url}"/><span class="image-name">${esc(im.name)}</span><span><button class="tiny" data-up="${i}">↑</button><button class="tiny" data-del="${i}">×</button></span></div>`).join('')}
+  $('#imageList').addEventListener('click',e=>{if(e.target.dataset.del!==undefined){const i=+e.target.dataset.del;URL.revokeObjectURL(state.images[i].url);state.images.splice(i,1)}if(e.target.dataset.up!==undefined){const i=+e.target.dataset.up;if(i>0)[state.images[i-1],state.images[i]]=[state.images[i],state.images[i-1]]}renderImages();render()});
+  async function copyHtml(){const html=buildHtml();if(!html){toast('请先输入文章内容');return}try{if(window.ClipboardItem){await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([$('#preview').innerText],{type:'text/plain'})})])}else{const range=document.createRange();range.selectNodeContents($('#preview'));const sel=getSelection();sel.removeAllRanges();sel.addRange(range);document.execCommand('copy');sel.removeAllRanges()}toast('已复制，可直接粘贴到公众号编辑器')}catch(err){toast('浏览器未授权复制，请查看 HTML 手动复制')}}
+  $('#copyBtn').addEventListener('click',copyHtml);
+  $('#htmlBtn').addEventListener('click',()=>{$('#modal').classList.add('open');render()});$('#closeModal').addEventListener('click',()=>$('#modal').classList.remove('open'));$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')e.currentTarget.classList.remove('open')});
+  $('#downloadBtn').addEventListener('click',()=>{const body=buildHtml();if(!body){toast('请先输入文章内容');return}const file=`<!doctype html><html><head><meta charset="utf-8"><title>${esc($('#title').value||'公众号文章')}<\/title><\/head><body>${body}<\/body><\/html>`;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([file],{type:'text/html'}));a.download=($('#title').value.trim()||'公众号文章')+'.html';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),800);toast('HTML 文件已导出')});
+  $('#sampleBtn').addEventListener('click',()=>{$('#title').value='把复杂内容，变成一篇好读的推文';$('#subtitle').value='上传文字和图片，剩下的交给自动排版。';$('#content').value='## 为什么需要自动排版\n公众号文章的阅读场景主要发生在手机端。段落过长、层级不清或图片位置混乱，都会让读者快速离开。\n\n真正高效的工具，不应该让人反复调整字号和间距，而是先完成一套可靠的基础排版。\n\n> 好的版式不会抢走内容的注意力，它只是让信息更容易被看见。\n\n## 使用方法\n粘贴文章，上传图片，再选择适合内容气质的模板。预览确认后，可以直接复制到公众号编辑器。\n\n## 继续扩展\n后续还可以接入企业素材库、品牌色、固定页尾、二维码和团队模板，让每次发布都保持一致。';render();toast('示例内容已载入')});
+  render();
+</script>
+</body>
+</html>
