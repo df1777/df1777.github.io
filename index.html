@@ -4,9 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="description" content="上传文字和图片，自动生成适合微信公众号的图文排版。" />
-  <title>豆花小帮手｜公众号排版助手</title>
+  <title>豆花小帮手｜你的公众号排版助手</title>
   <style>
-    :root{--ink:#20202a;--muted:#77758a;--line:#ebe8f2;--brand:#1aa4ff;--brand2:rgb(64, 255, 137);--paper:#fff;--bg:#f6f4fb;--shadow:0 16px 46px rgba(54,38,102,.12)}
+    :root{--ink:#20202a;--muted:#77758a;--line:#ebe8f2;--brand:#783eff;--brand2:rgb(103, 93, 255);--paper:#fff;--bg:#f6f4fb;--shadow:0 16px 46px rgba(54,38,102,.12)}
     *{box-sizing:border-box} body{margin:0;background:linear-gradient(145deg,#f8f7fc,#f2eff9);color:var(--ink);font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh}
     button,input,textarea,select{font:inherit} button{cursor:pointer}.app{min-height:100vh;display:flex;flex-direction:column}
     header{height:68px;padding:0 28px;background:rgba(255,255,255,.86);backdrop-filter:blur(18px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
@@ -25,17 +25,44 @@
     .modal{position:fixed;inset:0;background:rgba(25,20,36,.45);display:none;place-items:center;z-index:50;padding:20px}.modal.open{display:grid}.modal-card{width:min(620px,100%);max-height:80vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:24px}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.close{border:0;background:#eeeaf5;border-radius:8px;width:32px;height:32px}.code{background:#211f29;color:#e8e2f5;padding:14px;border-radius:10px;font:12px/1.6 Consolas,monospace;white-space:pre-wrap;word-break:break-all;max-height:380px;overflow:auto}
     @media(max-width:980px){main{grid-template-columns:1fr}.editor{min-height:auto}.preview-wrap{min-height:790px}}
     @media(max-width:620px){header{padding:0 14px}.tag,.header-actions .btn-soft{display:none}main{padding:10px}.editor{grid-template-columns:1fr}.form{border-right:0}.sidebar{border-top:1px solid var(--line)}.upload-row{grid-template-columns:1fr}.preview-wrap{padding:12px}.phone{border-width:5px;border-radius:26px}.preview-actions .btn-outline{display:none}}
-  </style>
+  .color-grid {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.color-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 10px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.color-row input[type="color"] {
+  width: 42px;
+  height: 30px;
+  padding: 2px;
+  border: 1px solid #ddd9e8;
+  border-radius: 7px;
+  background: #fff;
+  cursor: pointer;
+}
+</style>
 </head>
 <body>
 <div class="app">
   <header>
-    <div class="brand"><div class="logo">豆</div><span>豆花小帮手</span><span class="tag">公众号排版助手</span></div>
+    <div class="brand"><div class="logo">豆</div><span>豆花小帮手</span><span class="tag">你的公众号排版助手</span></div>
     <div class="header-actions"><button class="btn btn-soft" id="sampleBtn">载入示例</button><button class="btn btn-primary" id="copyBtn">复制到公众号</button></div>
   </header>
   <main>
     <section class="panel">
-      <div class="panel-title"><span>内容与样式</span><span class="step">上传即可排版</span></div>
+      <div class="panel-title"><span>内容与样式</span><span class="step">上传内容即可自动排版</span></div>
       <div class="editor">
         <div class="form">
           <div class="field"><label for="title">文章标题</label><input class="input" id="title" placeholder="输入推文标题" /></div>
@@ -52,8 +79,30 @@
           <div class="image-list" id="imageList"></div>
         </div>
         <aside class="sidebar">
-          <div class="section-head">排版模板</div>
-          <div class="templates" id="templates">
+          <div class="section-head">自定义颜色</div>
+
+<div class="color-grid">
+  <label class="color-row">
+    <span>标题强调色</span>
+    <input type="color" id="accentColor" value="#7057d9">
+  </label>
+
+  <label class="color-row">
+    <span>卡片背景色</span>
+    <input type="color" id="softColor" value="#f2efff">
+  </label>
+
+  <label class="color-row">
+    <span>正文颜色</span>
+    <input type="color" id="inkColor" value="#272431">
+  </label>
+
+  <label class="color-row">
+    <span>边框颜色</span>
+    <input type="color" id="lineColor" value="#ded7fb">
+  </label>
+</div>
+          <div class="templates" id="templates" style="display:none">
             <button class="template active" data-theme="purple"><span class="swatch" style="background:#7057d9">Aa</span><span>清爽紫<small>课程与活动</small></span></button>
             <button class="template" data-theme="blue"><span class="swatch" style="background:#176b87">Aa</span><span>学术蓝<small>研究与科普</small></span></button>
             <button class="template" data-theme="orange"><span class="swatch" style="background:#d87635">Aa</span><span>温暖橙<small>故事与分享</small></span></button>
@@ -123,6 +172,19 @@
   function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>el.classList.remove('show'),2200)}
   ['title','subtitle','content'].forEach(id=>$('#'+id).addEventListener('input',render));
   $('#templates').addEventListener('click',e=>{const b=e.target.closest('.template');if(!b)return;$$('.template').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.theme=b.dataset.theme;render()});
+  const colorMap = {
+  accentColor: 'accent',
+  softColor: 'soft',
+  inkColor: 'ink',
+  lineColor: 'line'
+};
+
+Object.entries(colorMap).forEach(([inputId, colorKey]) => {
+  $('#' + inputId).addEventListener('input', event => {
+    themes[state.theme][colorKey] = event.target.value;
+    render();
+  });
+});
   $('#fontSize').addEventListener('input',e=>{state.fontSize=+e.target.value;$('#fontVal').textContent=state.fontSize+'px';render()});
   $('#lineHeight').addEventListener('input',e=>{state.lineHeight=(+e.target.value/10);$('#lineVal').textContent=state.lineHeight.toFixed(2);render()});
   $('#textFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$('#content').value=r.result;render();toast('文字已导入并完成排版')};r.readAsText(f,'utf-8')});
