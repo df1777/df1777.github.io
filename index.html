@@ -794,9 +794,15 @@ const s = styleMap();
       if (sub) html += `<section style="${s.sub}">${esc(sub)}</section>`;
       let imageIndex = 0; const interval = Math.max(1, Math.ceil(blocks.length / Math.max(1, state.images.length)));
       blocks.forEach((b, i) => {
-        if (b.type === 'h') html += `<h2 style="${s.h}"><span style="display:inline-block;width:7px;height:19px;border-radius:5px;background:${s.t.accent};"></span>${esc(b.text)}</h2>`;
-        else if (b.type === 'q') html += `<section style="${s.q}">${esc(b.text)}</section>`;
-        else html += `<p style="${s.p}">${esc(b.text)}</p>`;
+if (b.type === 'h') {
+  html += `<h2 data-content-index="${i}" style="${s.h}"><span style="display:inline-block;width:7px;height:19px;border-radius:5px;background:${s.t.accent};"></span>${esc(b.text)}</h2>`;
+}
+else if (b.type === 'q') {
+  html += `<section data-content-index="${i}" style="${s.q}">${esc(b.text)}</section>`;
+}        
+else {
+  html += `<p data-content-index="${i}" style="${s.p}">${esc(b.text)}</p>`;
+}
         if (state.images[imageIndex] && ((i + 1) % interval === 0)) { const im = state.images[imageIndex++]; html += `<img src="${im.url}" alt="${esc(im.name)}" style="${s.img}"/><p style="${s.cap}">图片 ${imageIndex}</p>` }
       });
       while (state.images[imageIndex]) { const im = state.images[imageIndex++]; html += `<img src="${im.url}" alt="${esc(im.name)}" style="${s.img}"/><p style="${s.cap}">图片 ${imageIndex}</p>` }
@@ -824,8 +830,19 @@ const s = styleMap();
       .forEach(block => block.classList.remove('is-selected'));
 
     clickedBlock.classList.add('is-selected');
-    state.selectedBlockIndex = Number(clickedBlock.dataset.blockId);
-    console.log('当前选中的内容块：', state.selectedBlockIndex);
+    const contentIndex = clickedBlock.dataset.contentIndex;
+
+state.selectedBlockIndex =
+  contentIndex === undefined
+    ? null
+    : Number(contentIndex);
+
+console.log(
+  '预览编号：',
+  clickedBlock.dataset.blockId,
+  '正文数据编号：',
+  state.selectedBlockIndex
+);
   });
 }
 function render() {
