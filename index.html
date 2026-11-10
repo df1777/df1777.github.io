@@ -8,14 +8,14 @@
   <title>豆花小帮手｜你的公众号排版助手</title>
   <style>
     :root {
-      --ink: #20202a;
-      --muted: #77758a;
-      --line: #ebe8f2;
-      --brand: #783eff;
-      --brand2: rgb(103, 93, 255);
-      --paper: #fff;
-      --bg: #f6f4fb;
-      --shadow: 0 16px 46px rgba(54, 38, 102, .12)
+      --ink: #493a32;
+      --muted: #7f7168;
+      --line: #eadaca;
+      --brand: #e8742c;
+      --brand2: #32a6c5;
+      --paper: #fffdf9;
+      --bg: #f7efe3;
+      --shadow: 0 16px 46px rgba(105, 72, 45, .14)
     }
 
     * {
@@ -24,10 +24,24 @@
 
     body {
       margin: 0;
-      background: linear-gradient(145deg, #f8f7fc, #f2eff9);
+      background: #f7efe3;
       color: var(--ink);
       font-family: Inter, "PingFang SC", "Microsoft YaHei", sans-serif;
-      min-height: 100vh
+      min-height: 100vh;
+      position: relative
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image: url("./cat-tofu-background.webp");
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      opacity: .22
     }
 
     button,
@@ -44,13 +58,15 @@
     .app {
       min-height: 100vh;
       display: flex;
-      flex-direction: column
+      flex-direction: column;
+      position: relative;
+      z-index: 1
     }
 
     header {
       height: 68px;
       padding: 0 28px;
-      background: rgba(255, 255, 255, .86);
+      background: rgba(255, 251, 245, .88);
       backdrop-filter: blur(18px);
       border-bottom: 1px solid var(--line);
       display: flex;
@@ -73,18 +89,18 @@
       width: 36px;
       height: 36px;
       border-radius: 12px;
-      background: linear-gradient(140deg, #5f47c6, #9a86ef);
+      background: linear-gradient(140deg, #e8742c, #f4ad47);
       display: grid;
       place-items: center;
       color: white;
-      box-shadow: 0 8px 18px rgba(112, 87, 217, .28)
+      box-shadow: 0 8px 18px rgba(213, 101, 36, .28)
     }
 
     .tag {
       font-size: 12px;
       color: var(--brand);
-      background: #f0ecff;
-      border: 1px solid #e2dafd;
+      background: #fff0df;
+      border: 1px solid #f2d1ae;
       padding: 5px 9px;
       border-radius: 99px;
       margin-left: 8px
@@ -110,17 +126,17 @@
     .btn-primary {
       color: white;
       background: var(--brand);
-      box-shadow: 0 7px 17px rgba(112, 87, 217, .25)
+      box-shadow: 0 7px 17px rgba(213, 101, 36, .25)
     }
 
     .btn-soft {
-      color: #4e466a;
-      background: #f0edf8
+      color: #66544a;
+      background: #f5eadf
     }
 
     .btn-outline {
-      color: #544b70;
-      background: white;
+      color: #66544a;
+      background: #fffdf9;
       border: 1px solid var(--line)
     }
 
@@ -133,10 +149,10 @@
     }
 
     .panel {
-      background: rgba(255, 255, 255, .92);
+      background: rgba(255, 253, 249, .94);
       border: 1px solid var(--line);
       border-radius: 18px;
-      box-shadow: 0 8px 35px rgba(52, 38, 89, .06);
+      box-shadow: 0 8px 35px rgba(105, 72, 45, .08);
       overflow: hidden
     }
 
@@ -153,7 +169,7 @@
     .step {
       color: var(--brand);
       font-size: 12px;
-      background: #f1edff;
+      background: #fff0df;
       padding: 5px 9px;
       border-radius: 99px
     }
@@ -172,7 +188,7 @@
 
     .sidebar {
       padding: 16px;
-      background: #fbfaff;
+      background: rgba(251, 246, 238, .94);
       overflow: auto
     }
 
@@ -209,10 +225,16 @@
       line-height: 1.72
     }
 
+    #content {
+      height: clamp(400px, 48vh, 560px);
+      min-height: 400px;
+      resize: vertical
+    }
+
     .input:focus,
     .textarea:focus {
-      border-color: #a696ec;
-      box-shadow: 0 0 0 3px rgba(112, 87, 217, .09)
+      border-color: #e9a36e;
+      box-shadow: 0 0 0 3px rgba(232, 116, 44, .10)
     }
 
     .hint {
@@ -228,9 +250,9 @@
     }
 
     .upload {
-      border: 1px dashed #bcb1e8;
-      background: #faf8ff;
-      color: #61558f;
+      border: 1px dashed #e4ae80;
+      background: #fff9f1;
+      color: #9a552c;
       border-radius: 12px;
       padding: 13px 10px;
       text-align: center;
@@ -240,7 +262,7 @@
     }
 
     .upload:hover {
-      background: #f3efff
+      background: #fff0df
     }
 
     .upload input {
@@ -273,8 +295,8 @@
     }
 
     .template.active {
-      border-color: #8e7ae3;
-      box-shadow: 0 0 0 2px #eee9ff
+      border-color: #e58a4c;
+      box-shadow: 0 0 0 2px #ffead8
     }
 
     .swatch {
@@ -300,9 +322,40 @@
 
     .control-top {
       display: flex;
+      align-items: center;
+      gap: 8px;
       justify-content: space-between;
       font-size: 12px;
       margin-bottom: 6px
+    }
+
+    .value-number {
+      width: 64px;
+      height: 30px;
+      padding: 3px 6px;
+      border: 1px solid #ddd9e8;
+      border-radius: 7px;
+      background: #fff;
+      color: var(--ink);
+      text-align: center;
+      outline: none
+    }
+
+    .value-number:focus,
+    .control-select:focus {
+      border-color: #e9a36e;
+      box-shadow: 0 0 0 3px rgba(232, 116, 44, .08)
+    }
+
+    .control-select {
+      width: 100%;
+      height: 36px;
+      padding: 0 9px;
+      border: 1px solid #ddd9e8;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      outline: none
     }
 
     .range {
@@ -363,7 +416,7 @@
     }
 
     .resource:hover {
-      border-color: #a99ce0
+      border-color: #e6a06c
     }
 
     .preview-panel {
@@ -390,10 +443,36 @@
       display: grid;
       place-items: center;
       padding: 28px;
-      background-color: #eae6f1;
-      background-image: radial-gradient(#d5cedf 1px, transparent 1px);
+      margin: 0 18px 18px;
+      border-radius: 16px;
+      background-color: rgba(248, 241, 230, .9);
+      background-image: radial-gradient(rgba(50, 166, 197, .32) 1px, transparent 1px);
       background-size: 20px 20px;
-      overflow: auto
+      overflow: auto;
+      clip-path: inset(0 round 16px);
+      scrollbar-color: #c89168 transparent;
+      scrollbar-width: thin
+    }
+
+    .preview-wrap::-webkit-scrollbar {
+      width: 9px;
+      height: 9px
+    }
+
+    .preview-wrap::-webkit-scrollbar-track {
+      background: transparent;
+      margin-block: 14px
+    }
+
+    .preview-wrap::-webkit-scrollbar-thumb {
+      border: 2px solid transparent;
+      border-radius: 999px;
+      background: #c89168;
+      background-clip: padding-box
+    }
+
+    .preview-wrap::-webkit-scrollbar-corner {
+      background: transparent
     }
 
     .phone {
@@ -502,7 +581,7 @@
 
     .close {
       border: 0;
-      background: #eeeaf5;
+      background: #f6e7da;
       border-radius: 8px;
       width: 32px;
       height: 32px
@@ -605,22 +684,196 @@
       background: #fff;
       cursor: pointer;
     }
-  /* 可编辑内容块 */
-#preview .editable-block {
-  cursor: pointer;
-  transition: outline-color 0.15s, box-shadow 0.15s;
-}
+    /* 可编辑内容块 */
+    #preview .editable-block {
+      cursor: pointer;
+      transition: outline-color .15s, box-shadow .15s
+    }
 
-#preview .editable-block:hover {
-  outline: 1px dashed #9c8af0;
-  outline-offset: 4px;
-}
+    #preview .editable-block:hover {
+      outline: 1px dashed #e69b62;
+      outline-offset: 4px
+    }
 
-#preview .editable-block.is-selected {
-  outline: 2px solid #7057d9;
-  outline-offset: 4px;
-  box-shadow: 0 0 0 5px rgba(112, 87, 217, 0.1);
-}
+    #preview .editable-block.is-selected {
+      outline: 2px solid var(--brand);
+      outline-offset: 4px;
+      box-shadow: 0 0 0 5px rgba(232, 116, 44, .1)
+    }
+
+    .block-toolbar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      margin: 10px 18px 12px;
+      border: 1px solid rgba(232, 116, 44, .22);
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255, 250, 242, .98), rgba(250, 239, 225, .98));
+      box-shadow: 0 5px 16px rgba(105, 72, 45, .08);
+      color: #72513d;
+      font-size: 13px
+    }
+
+    .block-toolbar.show {
+      display: flex
+    }
+
+    #selectedBlockLabel {
+      flex: 0 0 auto;
+      padding: 6px 10px;
+      border: 1px solid rgba(232, 116, 44, .16);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .88);
+      color: #9a552c;
+      font-size: 12px;
+      font-weight: 650;
+      white-space: nowrap
+    }
+
+    .block-width-control {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin: 0;
+      white-space: nowrap
+    }
+
+    .block-width-control input {
+      width: 100px;
+      accent-color: var(--brand)
+    }
+
+    .block-width-control b {
+      min-width: 38px;
+      color: var(--brand);
+      font-size: 12px
+    }
+
+    .block-toolbar-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 5px;
+      padding: 4px;
+      border: 1px solid rgba(232, 116, 44, .14);
+      border-radius: 11px;
+      background: rgba(255, 255, 255, .72)
+    }
+
+    .block-toolbar button {
+      min-height: 30px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 5px 9px;
+      background: transparent;
+      color: #72513d;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background .15s, color .15s, border-color .15s, transform .15s
+    }
+
+    .block-toolbar button:hover {
+      border-color: rgba(232, 116, 44, .28);
+      background: #fff;
+      color: var(--brand);
+      transform: translateY(-1px)
+    }
+
+    .block-toolbar button.active {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 3px 8px rgba(232, 116, 44, .22)
+    }
+
+    .block-toolbar button:disabled {
+      opacity: .35;
+      cursor: not-allowed;
+      transform: none
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 20px;
+      margin: 0 3px;
+      background: rgba(232, 116, 44, .2)
+    }
+
+    #deleteBlockBtn {
+      color: #c24152
+    }
+
+    #deleteBlockBtn:hover {
+      border-color: rgba(194, 65, 82, .2);
+      background: #fff3f5;
+      color: #ad263b
+    }
+
+    @media (min-width:981px) {
+      html,
+      body {
+        height: 100%;
+        overflow: hidden
+      }
+
+      .app {
+        height: 100vh;
+        overflow: hidden
+      }
+
+      main {
+        height: calc(100vh - 68px);
+        min-height: 0;
+        overflow: hidden
+      }
+
+      .panel {
+        height: 100%;
+        min-height: 0
+      }
+
+      .editor {
+        height: calc(100% - 52px);
+        min-height: 0;
+        overflow: hidden
+      }
+
+      .form,
+      .sidebar {
+        min-height: 0;
+        overflow-y: auto
+      }
+
+      .preview-panel {
+        height: 100%;
+        min-height: 0;
+        overflow: hidden
+      }
+
+      .preview-wrap {
+        flex: 1;
+        min-height: 0 !important;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        place-items: start center;
+        padding-bottom: 56px
+      }
+    }
+
+    @media (max-width:1250px) and (min-width:981px) {
+      .block-toolbar {
+        align-items: flex-start;
+        flex-wrap: wrap
+      }
+
+      .block-toolbar-actions {
+        flex: 1 1 100%;
+        justify-content: flex-start
+      }
+    }
 </style>
 </head>
 
@@ -661,46 +914,69 @@
             <div class="color-grid">
               <label class="color-row">
                 <span>标题强调色</span>
-                <input type="color" id="accentColor" value="#7057d9">
+                <input type="color" id="accentColor" value="#e8742c">
               </label>
 
               <label class="color-row">
                 <span>卡片背景色</span>
-                <input type="color" id="softColor" value="#f2efff">
+                <input type="color" id="softColor" value="#fff0df">
               </label>
 
               <label class="color-row">
                 <span>正文颜色</span>
-                <input type="color" id="inkColor" value="#272431">
+                <input type="color" id="inkColor" value="#493a32">
               </label>
 
               <label class="color-row">
                 <span>图片边框色</span>
-                <input type="color" id="lineColor" value="#ded7fb">
+                <input type="color" id="lineColor" value="#e8b88d">
               </label>
             </div>
             <div class="control">
               <div class="control-top">
                 <span>图片边框粗细</span>
-                <b id="borderWidthVal">2px</b>
+                <input class="value-number" id="borderWidthInput" type="number" min="0" max="20" step="1" value="2" aria-label="图片边框粗细">
               </div>
-              <input class="range" id="borderWidth" type="range" min="0" max="10" value="2">
+              <input class="range" id="borderWidth" type="range" min="0" max="20" step="1" value="2">
             </div>
 
             <div class="control">
               <div class="control-top">
                 <span>图片圆角大小</span>
-                <b id="borderRadiusVal">9px</b>
+                <input class="value-number" id="borderRadiusInput" type="number" min="0" max="80" step="1" value="9" aria-label="图片圆角大小">
               </div>
-              <input class="range" id="borderRadius" type="range" min="0" max="50" value="9">
+              <input class="range" id="borderRadius" type="range" min="0" max="80" step="1" value="9">
             </div>
             <div class="control">
-              <div class="control-top"><span>正文字号</span><b id="fontVal">16px</b></div><input class="range" id="fontSize"
-                type="range" min="14" max="19" value="16" />
+              <div class="control-top"><span>标题字号</span><input class="value-number" id="titleFontSizeInput" type="number" min="18" max="48" step="1" value="26" aria-label="标题字号"></div>
+              <input class="range" id="titleFontSize" type="range" min="18" max="48" step="1" value="26" />
             </div>
             <div class="control">
-              <div class="control-top"><span>行间距</span><b id="lineVal">1.85</b></div><input class="range"
-                id="lineHeight" type="range" min="16" max="22" value="19" />
+              <div class="control-top"><span>摘要字号</span><input class="value-number" id="subtitleFontSizeInput" type="number" min="12" max="30" step="1" value="14" aria-label="摘要字号"></div>
+              <input class="range" id="subtitleFontSize" type="range" min="12" max="30" step="1" value="14" />
+            </div>
+            <div class="control">
+              <div class="control-top"><span>正文字号</span><input class="value-number" id="fontSizeInput" type="number" min="12" max="32" step="1" value="16" aria-label="正文字号"></div>
+              <input class="range" id="fontSize" type="range" min="12" max="32" step="1" value="16" />
+            </div>
+            <div class="control">
+              <div class="control-top"><span>行间距</span><input class="value-number" id="lineHeightInput" type="number" min="1" max="3" step="0.05" value="1.9" aria-label="行间距"></div>
+              <input class="range" id="lineHeight" type="range" min="1" max="3" step="0.05" value="1.9" />
+            </div>
+            <div class="section-head" style="margin-top:22px">小标题图标</div>
+            <div class="control">
+              <div class="control-top"><span>图标形状</span></div>
+              <select class="control-select" id="headingMarkerStyle">
+                <option value="bar">圆角短条</option>
+                <option value="dot">圆点</option>
+                <option value="square">方块</option>
+                <option value="diamond">菱形</option>
+                <option value="none">不显示</option>
+              </select>
+            </div>
+            <div class="control">
+              <div class="control-top"><span>图标大小</span><input class="value-number" id="headingMarkerSizeInput" type="number" min="6" max="32" step="1" value="19" aria-label="小标题图标大小"></div>
+              <input class="range" id="headingMarkerSize" type="range" min="6" max="32" step="1" value="19" />
             </div>
             <div class="section-head" style="margin-top:22px">图片资源参考</div>
             <a class="resource" href="https://unsplash.com/" target="_blank" rel="noreferrer">Unsplash · 摄影图库 ↗</a>
@@ -715,6 +991,23 @@
         <div class="preview-toolbar"><b>微信手机预览</b>
           <div class="preview-actions"><button class="btn btn-outline" id="htmlBtn">查看 HTML</button><button
               class="btn btn-outline" id="downloadBtn">导出文件</button></div>
+        </div>
+        <div class="block-toolbar" id="blockToolbar">
+          <span id="selectedBlockLabel">未选择正文</span>
+          <label class="block-width-control">
+            <span id="sizeControlLabel">段落宽度</span>
+            <input type="range" id="blockWidthRange" min="40" max="100" value="100">
+            <b id="blockWidthValue">100%</b>
+          </label>
+          <div class="block-toolbar-actions">
+            <button type="button" id="alignLeftBtn">左对齐</button>
+            <button type="button" id="alignCenterBtn">居中</button>
+            <button type="button" id="alignRightBtn">右对齐</button>
+            <span class="toolbar-divider"></span>
+            <button type="button" id="moveUpBtn">↑ 上移</button>
+            <button type="button" id="moveDownBtn">↓ 下移</button>
+            <button type="button" id="deleteBlockBtn">删除</button>
+          </div>
         </div>
         <div class="preview-wrap">
           <div class="phone">
@@ -743,18 +1036,23 @@
   <script>
     const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
     const state = {
+      titleFontSize: 26,
+      subtitleFontSize: 14,
       fontSize: 16,
       lineHeight: 1.9,
       borderWidth: 2,
       borderRadius: 9,
+      headingMarkerStyle: 'bar',
+      headingMarkerSize: 19,
       images: [],
       blocks: [],
+      selectedBlockType: null,
       selectedBlockIndex: null,
       colors: {
-        accent: '#7057d9',
-        soft: '#f2efff',
-        ink: '#272431',
-        line: '#ded7fb'
+        accent: '#e8742c',
+        soft: '#fff0df',
+        ink: '#493a32',
+        line: '#e8b88d'
       }
     };
     function esc(v = '') { return v.replace(/[&<>\"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' }[c])) }
@@ -766,8 +1064,8 @@
     function styleMap() {
       const t = state.colors; return {
         t,
-        title: `margin:0 0 12px;color:${t.ink};font-size:26px;line-height:1.35;font-weight:800;letter-spacing:.02em;`,
-        sub: `margin:0 0 22px;padding:12px 14px;background:${t.soft};border-left:3px solid ${t.accent};color:#6c6873;font-size:14px;line-height:1.65;`,
+        title: `margin:0 0 12px;color:${t.ink};font-size:${state.titleFontSize}px;line-height:1.35;font-weight:800;letter-spacing:.02em;`,
+        sub: `margin:0 0 22px;padding:12px 14px;background:${t.soft};border-left:3px solid ${t.accent};color:#6c6873;font-size:${state.subtitleFontSize}px;line-height:1.65;`,
         h: `margin:30px 0 14px;color:${t.accent};font-size:19px;line-height:1.5;font-weight:800;display:flex;align-items:center;gap:8px;`,
         p: `margin:0 0 18px;color:${t.ink};font-size:${state.fontSize}px;line-height:${state.lineHeight};text-align:justify;letter-spacing:.02em;`,
         q: `margin:20px 0;padding:16px 17px;background:${t.soft};border-radius:10px;color:#5c5864;font-size:${Math.max(14, state.fontSize - 1)}px;line-height:${state.lineHeight};`,
@@ -783,80 +1081,218 @@
         cap: `margin:0 0 20px;color:#99949f;font-size:12px;line-height:1.5;text-align:center;`
       }
     }
+    function headingMarkerHtml(s) {
+      const shape = state.headingMarkerStyle;
+      if (shape === 'none') return '';
+      const size = state.headingMarkerSize;
+      let width = size;
+      let height = size;
+      let radius = '3px';
+      let transform = '';
+      if (shape === 'bar') {
+        width = Math.max(4, Math.round(size * .36));
+        radius = '999px';
+      } else if (shape === 'dot') {
+        radius = '50%';
+      } else if (shape === 'diamond') {
+        width = height = Math.max(6, Math.round(size * .72));
+        transform = 'rotate(45deg)';
+      }
+      return `<span style="display:inline-block;flex:0 0 auto;width:${width}px;height:${height}px;border-radius:${radius};background:${s.t.accent};transform:${transform};"></span>`;
+    }
+    function itemPositionStyle(item) {
+      const align = item.align || 'left';
+      const width = item.width || 100;
+      const marginLeft = align === 'center' || align === 'right' ? 'auto' : '0';
+      const marginRight = align === 'center' || align === 'left' ? 'auto' : '0';
+      return {
+        align,
+        width,
+        css: `width:${width}%;max-width:100%;margin-left:${marginLeft};margin-right:${marginRight};box-sizing:border-box;`
+      };
+    }
+    function imageHtml(im, index, s) {
+      const position = itemPositionStyle(im);
+      return `<img data-image-index="${index}" src="${im.url}" alt="${esc(im.name)}" style="${s.img}${position.css}"/><p style="${s.cap}">图片 ${index + 1}</p>`;
+    }
     function buildHtml() {
-const title = $('#title').value.trim();
-const sub = $('#subtitle').value.trim();
-const blocks = state.blocks;
-const s = styleMap();
+      const title = $('#title').value.trim();
+      const sub = $('#subtitle').value.trim();
+      const blocks = state.blocks;
+      const s = styleMap();
       if (!title && !sub && !blocks.length && !state.images.length) return '';
       let html = `<section style="font-family:'PingFang SC','Microsoft YaHei',sans-serif;max-width:100%;word-break:break-word;">`;
       if (title) html += `<h1 style="${s.title}">${esc(title)}</h1>`;
       if (sub) html += `<section style="${s.sub}">${esc(sub)}</section>`;
       let imageIndex = 0; const interval = Math.max(1, Math.ceil(blocks.length / Math.max(1, state.images.length)));
       blocks.forEach((b, i) => {
-if (b.type === 'h') {
-  html += `<h2 data-content-index="${i}" style="${s.h}"><span style="display:inline-block;width:7px;height:19px;border-radius:5px;background:${s.t.accent};"></span>${esc(b.text)}</h2>`;
-}
-else if (b.type === 'q') {
-  html += `<section data-content-index="${i}" style="${s.q}">${esc(b.text)}</section>`;
-}        
-else {
-  html += `<p data-content-index="${i}" style="${s.p}">${esc(b.text)}</p>`;
-}
-        if (state.images[imageIndex] && ((i + 1) % interval === 0)) { const im = state.images[imageIndex++]; html += `<img src="${im.url}" alt="${esc(im.name)}" style="${s.img}"/><p style="${s.cap}">图片 ${imageIndex}</p>` }
+        const position = itemPositionStyle(b);
+        const align = position.align;
+        const blockPositionStyle = position.css;
+        const headingJustify = align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start';
+
+        if (b.type === 'h') {
+          html += `<h2 data-content-index="${i}" style="${s.h}${blockPositionStyle}text-align:${align};justify-content:${headingJustify};">${headingMarkerHtml(s)}${esc(b.text)}</h2>`;
+        } else if (b.type === 'q') {
+          html += `<section data-content-index="${i}" style="${s.q}${blockPositionStyle}text-align:${align};">${esc(b.text)}</section>`;
+        } else {
+          html += `<p data-content-index="${i}" style="${s.p}${blockPositionStyle}text-align:${align};">${esc(b.text)}</p>`;
+        }
+        if (state.images[imageIndex] && ((i + 1) % interval === 0)) {
+          const currentImageIndex = imageIndex;
+          const im = state.images[imageIndex++];
+          html += imageHtml(im, currentImageIndex, s);
+        }
       });
-      while (state.images[imageIndex]) { const im = state.images[imageIndex++]; html += `<img src="${im.url}" alt="${esc(im.name)}" style="${s.img}"/><p style="${s.cap}">图片 ${imageIndex}</p>` }
+      while (state.images[imageIndex]) {
+        const currentImageIndex = imageIndex;
+        const im = state.images[imageIndex++];
+        html += imageHtml(im, currentImageIndex, s);
+      }
       html += `<p style="margin:34px 0 0;text-align:center;color:${s.t.accent};font-size:12px;letter-spacing:.18em;">— END —</p></section>`; return html;
     }
     function enableBlockSelection() {
-  const article = document.querySelector('#preview > section');
+      const article = document.querySelector('#preview > section');
+      if (!article) {
+        updateBlockToolbar();
+        return;
+      }
+      const selectable = article.querySelectorAll('[data-content-index], [data-image-index]');
+      selectable.forEach(block => block.classList.add('editable-block'));
 
-  if (!article) return;
+      if (state.selectedBlockIndex !== null && state.selectedBlockType) {
+        const dataName = state.selectedBlockType === 'image' ? 'image-index' : 'content-index';
+        const rememberedBlock = article.querySelector(`[data-${dataName}="${state.selectedBlockIndex}"]`);
+        if (rememberedBlock) rememberedBlock.classList.add('is-selected');
+      }
 
-  const blocks = article.children;
+      updateBlockToolbar();
+      article.addEventListener('click', event => {
+        const clickedBlock = event.target.closest('.editable-block');
+        if (!clickedBlock || !article.contains(clickedBlock)) return;
+        article.querySelectorAll('.is-selected').forEach(block => block.classList.remove('is-selected'));
+        clickedBlock.classList.add('is-selected');
+        if (clickedBlock.dataset.imageIndex !== undefined) {
+          state.selectedBlockType = 'image';
+          state.selectedBlockIndex = Number(clickedBlock.dataset.imageIndex);
+        } else {
+          state.selectedBlockType = 'content';
+          state.selectedBlockIndex = Number(clickedBlock.dataset.contentIndex);
+        }
+        updateBlockToolbar();
+      });
+    }
+    function render() {
+      const html = buildHtml();
+      $('#preview').innerHTML = html || '<div class="empty"><div class="empty-icon">✦</div>在左侧输入文章内容<br>这里会实时生成排版</div>';
+      enableBlockSelection();
+      $('#code').textContent = html;
+    }
+    function syncContentBlocks() {
+      state.blocks = parseContent($('#content').value);
+      state.selectedBlockType = null;
+      state.selectedBlockIndex = null;
+    }
 
-  Array.from(blocks).forEach((block, index) => {
-    block.classList.add('editable-block');
-    block.dataset.blockId = String(index);
-  });
+function syncTextFromBlocks() {
+  const text = state.blocks
+    .map(block => {
+      if (block.type === 'h') {
+        return `## ${block.text}`;
+      }
 
-  article.addEventListener('click', event => {
-    const clickedBlock = event.target.closest('.editable-block');
+      if (block.type === 'q') {
+        return `> ${block.text}`;
+      }
 
-    if (!clickedBlock || !article.contains(clickedBlock)) return;
+      return block.text;
+    })
+    .join('\n\n');
 
-    article
-      .querySelectorAll('.is-selected')
-      .forEach(block => block.classList.remove('is-selected'));
-
-    clickedBlock.classList.add('is-selected');
-    const contentIndex = clickedBlock.dataset.contentIndex;
-
-state.selectedBlockIndex =
-  contentIndex === undefined
-    ? null
-    : Number(contentIndex);
-
-console.log(
-  '预览编号：',
-  clickedBlock.dataset.blockId,
-  '正文数据编号：',
-  state.selectedBlockIndex
-);
-  });
+  $('#content').value = text;
 }
-function render() {
-  const html = buildHtml();
 
-  $('#preview').innerHTML =
-    html ||
-    '<div class="empty"><div class="empty-icon">✦</div>在左侧输入文章内容<br>这里会实时生成排版</div>';
-enableBlockSelection();
-  $('#code').textContent = html;
+function updateBlockToolbar() {
+  const index = state.selectedBlockIndex;
+  const collection = state.selectedBlockType === 'image' ? state.images : state.blocks;
+
+  const hasSelection =
+    Boolean(state.selectedBlockType) &&
+    Number.isInteger(index) &&
+    index >= 0 &&
+    index < collection.length;
+
+  $('#blockToolbar').classList.toggle('show', hasSelection);
+
+  if (!hasSelection) return;
+
+  const isImage = state.selectedBlockType === 'image';
+  $('#selectedBlockLabel').textContent = isImage
+    ? `已选中：第 ${index + 1} 张图片`
+    : `已选中：第 ${index + 1} 个正文块`;
+  $('#sizeControlLabel').textContent = isImage ? '图片宽度' : '段落宽度';
+
+  $('#moveUpBtn').disabled = index === 0;
+
+  $('#moveDownBtn').disabled =
+    index === collection.length - 1;
+
+  const alignment = collection[index].align || 'left';
+  const width = collection[index].width || 100;
+
+  $('#alignLeftBtn').classList.toggle('active', alignment === 'left');
+  $('#alignCenterBtn').classList.toggle('active', alignment === 'center');
+  $('#alignRightBtn').classList.toggle('active', alignment === 'right');
+  $('#blockWidthRange').value = width;
+  $('#blockWidthValue').textContent = width + '%';
 }
-function syncContentBlocks() {
-  state.blocks = parseContent($('#content').value);
-  state.selectedBlockIndex = null;
+
+function setSelectedBlockAlignment(alignment) {
+  const index = state.selectedBlockIndex;
+  const collection = state.selectedBlockType === 'image' ? state.images : state.blocks;
+
+  if (index === null || !collection[index]) return;
+
+  collection[index].align = alignment;
+  render();
+
+  const messageMap = {
+    left: '已设置为左对齐',
+    center: '已设置为居中',
+    right: '已设置为右对齐'
+  };
+
+  toast(messageMap[alignment]);
+}
+
+function moveSelectedBlock(offset) {
+  const currentIndex = state.selectedBlockIndex;
+  const targetIndex = currentIndex + offset;
+  const collection = state.selectedBlockType === 'image' ? state.images : state.blocks;
+
+  if (
+    currentIndex === null ||
+    targetIndex < 0 ||
+    targetIndex >= collection.length
+  ) {
+    return;
+  }
+
+  [
+    collection[currentIndex],
+    collection[targetIndex]
+  ] = [
+    collection[targetIndex],
+    collection[currentIndex]
+  ];
+
+  state.selectedBlockIndex = targetIndex;
+
+  if (state.selectedBlockType === 'content') syncTextFromBlocks();
+  if (state.selectedBlockType === 'image') renderImages();
+  render();
+
+  toast(offset < 0 ? '已上移' : '已下移');
 }
     function toast(msg) { const el = $('#toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(window.__toast); window.__toast = setTimeout(() => el.classList.remove('show'), 2200) }
     $('#title').addEventListener('input', render);
@@ -865,6 +1301,58 @@ $('#subtitle').addEventListener('input', render);
 $('#content').addEventListener('input', () => {
   syncContentBlocks();
   render();
+});
+
+$('#alignLeftBtn').addEventListener('click', () => {
+  setSelectedBlockAlignment('left');
+});
+
+$('#alignCenterBtn').addEventListener('click', () => {
+  setSelectedBlockAlignment('center');
+});
+
+$('#alignRightBtn').addEventListener('click', () => {
+  setSelectedBlockAlignment('right');
+});
+
+$('#blockWidthRange').addEventListener('input', event => {
+  const index = state.selectedBlockIndex;
+  const collection = state.selectedBlockType === 'image' ? state.images : state.blocks;
+
+  if (index === null || !collection[index]) return;
+
+  const width = Number(event.target.value);
+  collection[index].width = width;
+  $('#blockWidthValue').textContent = width + '%';
+  render();
+});
+
+$('#moveUpBtn').addEventListener('click', () => {
+  moveSelectedBlock(-1);
+});
+
+$('#moveDownBtn').addEventListener('click', () => {
+  moveSelectedBlock(1);
+});
+
+$('#deleteBlockBtn').addEventListener('click', () => {
+  const index = state.selectedBlockIndex;
+
+  if (index === null) return;
+  if (state.selectedBlockType === 'image') {
+    URL.revokeObjectURL(state.images[index].url);
+    state.images.splice(index, 1);
+    renderImages();
+  } else {
+    state.blocks.splice(index, 1);
+    syncTextFromBlocks();
+  }
+  state.selectedBlockType = null;
+  state.selectedBlockIndex = null;
+  render();
+  updateBlockToolbar();
+
+  toast('已删除');
 });
     const colorMap = {
       accentColor: 'accent',
@@ -879,21 +1367,38 @@ $('#content').addEventListener('input', () => {
         render();
       });
     });
-    $('#fontSize').addEventListener('input', e => { state.fontSize = +e.target.value; $('#fontVal').textContent = state.fontSize + 'px'; render() });
-    $('#borderWidth').addEventListener('input', e => {
-      state.borderWidth = Number(e.target.value);
-      $('#borderWidthVal').textContent = state.borderWidth + 'px';
+    function bindNumericControl(rangeId, inputId, stateKey) {
+      const range = $('#' + rangeId);
+      const input = $('#' + inputId);
+      const applyValue = rawValue => {
+        if (rawValue === '') return;
+        let value = Number(rawValue);
+        if (!Number.isFinite(value)) return;
+        const min = Number(input.min);
+        const max = Number(input.max);
+        value = Math.min(max, Math.max(min, value));
+        state[stateKey] = value;
+        range.value = value;
+        input.value = value;
+        render();
+      };
+      range.addEventListener('input', event => applyValue(event.target.value));
+      input.addEventListener('input', event => applyValue(event.target.value));
+      input.addEventListener('blur', () => { input.value = state[stateKey]; });
+    }
+    bindNumericControl('titleFontSize', 'titleFontSizeInput', 'titleFontSize');
+    bindNumericControl('subtitleFontSize', 'subtitleFontSizeInput', 'subtitleFontSize');
+    bindNumericControl('fontSize', 'fontSizeInput', 'fontSize');
+    bindNumericControl('lineHeight', 'lineHeightInput', 'lineHeight');
+    bindNumericControl('borderWidth', 'borderWidthInput', 'borderWidth');
+    bindNumericControl('borderRadius', 'borderRadiusInput', 'borderRadius');
+    bindNumericControl('headingMarkerSize', 'headingMarkerSizeInput', 'headingMarkerSize');
+    $('#headingMarkerStyle').addEventListener('change', event => {
+      state.headingMarkerStyle = event.target.value;
       render();
     });
-
-    $('#borderRadius').addEventListener('input', e => {
-      state.borderRadius = Number(e.target.value);
-      $('#borderRadiusVal').textContent = state.borderRadius + 'px';
-      render();
-    });
-    $('#lineHeight').addEventListener('input', e => { state.lineHeight = (+e.target.value / 10); $('#lineVal').textContent = state.lineHeight.toFixed(2); render() });
     $('#textFile').addEventListener('change', e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { $('#content').value = r.result; syncContentBlocks(); render(); toast('文字已导入并完成排版') }; r.readAsText(f, 'utf-8') });
-    $('#imageFile').addEventListener('change', e => { [...e.target.files].forEach(f => state.images.push({ name: f.name, url: URL.createObjectURL(f) })); renderImages(); render(); toast(`已添加 ${e.target.files.length} 张图片`) });
+    $('#imageFile').addEventListener('change', e => { [...e.target.files].forEach(f => state.images.push({ name: f.name, url: URL.createObjectURL(f), width: 100, align: 'center' })); renderImages(); render(); toast(`已添加 ${e.target.files.length} 张图片`) });
     function renderImages() { const box = $('#imageList'); box.innerHTML = state.images.map((im, i) => `<div class="image-item"><img class="thumb" src="${im.url}"/><span class="image-name">${esc(im.name)}</span><span><button class="tiny" data-up="${i}">↑</button><button class="tiny" data-del="${i}">×</button></span></div>`).join('') }
     $('#imageList').addEventListener('click', e => { if (e.target.dataset.del !== undefined) { const i = +e.target.dataset.del; URL.revokeObjectURL(state.images[i].url); state.images.splice(i, 1) } if (e.target.dataset.up !== undefined) { const i = +e.target.dataset.up; if (i > 0) [state.images[i - 1], state.images[i]] = [state.images[i], state.images[i - 1]] } renderImages(); render() });
     async function copyHtml() { const html = buildHtml(); if (!html) { toast('请先输入文章内容'); return } try { if (window.ClipboardItem) { await navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([html], { type: 'text/html' }), 'text/plain': new Blob([$('#preview').innerText], { type: 'text/plain' }) })]) } else { const range = document.createRange(); range.selectNodeContents($('#preview')); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range); document.execCommand('copy'); sel.removeAllRanges() } toast('已复制，可直接粘贴到公众号编辑器') } catch (err) { toast('浏览器未授权复制，请查看 HTML 手动复制') } }
