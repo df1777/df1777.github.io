@@ -605,7 +605,23 @@
       background: #fff;
       cursor: pointer;
     }
-  </style>
+  /* 可编辑内容块 */
+#preview .editable-block {
+  cursor: pointer;
+  transition: outline-color 0.15s, box-shadow 0.15s;
+}
+
+#preview .editable-block:hover {
+  outline: 1px dashed #9c8af0;
+  outline-offset: 4px;
+}
+
+#preview .editable-block.is-selected {
+  outline: 2px solid #7057d9;
+  outline-offset: 4px;
+  box-shadow: 0 0 0 5px rgba(112, 87, 217, 0.1);
+}
+</style>
 </head>
 
 <body>
@@ -732,6 +748,8 @@
       borderWidth: 2,
       borderRadius: 9,
       images: [],
+      blocks: [],
+      selectedBlockIndex: null,
       colors: {
         accent: '#7057d9',
         soft: '#f2efff',
@@ -739,16 +757,6 @@
         line: '#ded7fb'
       }
     };
-    fontSize: 16,
-      lineHeight: 1.9,
-        images: [],
-          colors: {
-      accent: '#7057d9',
-        soft: '#f2efff',
-          ink: '#272431',
-            line: '#ded7fb'
-    }
-};
     function esc(v = '') { return v.replace(/[&<>\"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' }[c])) }
     function parseContent(raw) {
       const lines = raw.replace(/\r/g, '').split('\n'); let blocks = [], buf = [];
@@ -776,7 +784,10 @@
       }
     }
     function buildHtml() {
-      const title = $('#title').value.trim(), sub = $('#subtitle').value.trim(), blocks = parseContent($('#content').value), s = styleMap();
+const title = $('#title').value.trim();
+const sub = $('#subtitle').value.trim();
+const blocks = state.blocks;
+const s = styleMap();
       if (!title && !sub && !blocks.length && !state.images.length) return '';
       let html = `<section style="font-family:'PingFang SC','Microsoft YaHei',sans-serif;max-width:100%;word-break:break-word;">`;
       if (title) html += `<h1 style="${s.title}">${esc(title)}</h1>`;
@@ -791,9 +802,53 @@
       while (state.images[imageIndex]) { const im = state.images[imageIndex++]; html += `<img src="${im.url}" alt="${esc(im.name)}" style="${s.img}"/><p style="${s.cap}">图片 ${imageIndex}</p>` }
       html += `<p style="margin:34px 0 0;text-align:center;color:${s.t.accent};font-size:12px;letter-spacing:.18em;">— END —</p></section>`; return html;
     }
-    function render() { const html = buildHtml(); $('#preview').innerHTML = html || '<div class="empty"><div class="empty-icon">✦</div>在左侧输入文章内容<br/>这里会实时生成排版</div>'; $('#code').textContent = html }
+    function enableBlockSelection() {
+  const article = document.querySelector('#preview > section');
+
+  if (!article) return;
+
+  const blocks = article.children;
+
+  Array.from(blocks).forEach((block, index) => {
+    block.classList.add('editable-block');
+    block.dataset.blockId = String(index);
+  });
+
+  article.addEventListener('click', event => {
+    const clickedBlock = event.target.closest('.editable-block');
+
+    if (!clickedBlock || !article.contains(clickedBlock)) return;
+
+    article
+      .querySelectorAll('.is-selected')
+      .forEach(block => block.classList.remove('is-selected'));
+
+    clickedBlock.classList.add('is-selected');
+    state.selectedBlockIndex = Number(clickedBlock.dataset.blockId);
+    console.log('当前选中的内容块：', state.selectedBlockIndex);
+  });
+}
+function render() {
+  const html = buildHtml();
+
+  $('#preview').innerHTML =
+    html ||
+    '<div class="empty"><div class="empty-icon">✦</div>在左侧输入文章内容<br>这里会实时生成排版</div>';
+enableBlockSelection();
+  $('#code').textContent = html;
+}
+function syncContentBlocks() {
+  state.blocks = parseContent($('#content').value);
+  state.selectedBlockIndex = null;
+}
     function toast(msg) { const el = $('#toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(window.__toast); window.__toast = setTimeout(() => el.classList.remove('show'), 2200) }
-    ['title', 'subtitle', 'content'].forEach(id => $('#' + id).addEventListener('input', render));
+    $('#title').addEventListener('input', render);
+$('#subtitle').addEventListener('input', render);
+
+$('#content').addEventListener('input', () => {
+  syncContentBlocks();
+  render();
+});
     const colorMap = {
       accentColor: 'accent',
       softColor: 'soft',
@@ -803,7 +858,7 @@
 
     Object.entries(colorMap).forEach(([inputId, colorKey]) => {
       $('#' + inputId).addEventListener('input', event => {
-        state.colors[colorKey] = event.target.value;;
+        state.colors[colorKey] = event.target.value;
         render();
       });
     });
@@ -820,7 +875,7 @@
       render();
     });
     $('#lineHeight').addEventListener('input', e => { state.lineHeight = (+e.target.value / 10); $('#lineVal').textContent = state.lineHeight.toFixed(2); render() });
-    $('#textFile').addEventListener('change', e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { $('#content').value = r.result; render(); toast('文字已导入并完成排版') }; r.readAsText(f, 'utf-8') });
+    $('#textFile').addEventListener('change', e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { $('#content').value = r.result; syncContentBlocks(); render(); toast('文字已导入并完成排版') }; r.readAsText(f, 'utf-8') });
     $('#imageFile').addEventListener('change', e => { [...e.target.files].forEach(f => state.images.push({ name: f.name, url: URL.createObjectURL(f) })); renderImages(); render(); toast(`已添加 ${e.target.files.length} 张图片`) });
     function renderImages() { const box = $('#imageList'); box.innerHTML = state.images.map((im, i) => `<div class="image-item"><img class="thumb" src="${im.url}"/><span class="image-name">${esc(im.name)}</span><span><button class="tiny" data-up="${i}">↑</button><button class="tiny" data-del="${i}">×</button></span></div>`).join('') }
     $('#imageList').addEventListener('click', e => { if (e.target.dataset.del !== undefined) { const i = +e.target.dataset.del; URL.revokeObjectURL(state.images[i].url); state.images.splice(i, 1) } if (e.target.dataset.up !== undefined) { const i = +e.target.dataset.up; if (i > 0) [state.images[i - 1], state.images[i]] = [state.images[i], state.images[i - 1]] } renderImages(); render() });
@@ -828,8 +883,9 @@
     $('#copyBtn').addEventListener('click', copyHtml);
     $('#htmlBtn').addEventListener('click', () => { $('#modal').classList.add('open'); render() }); $('#closeModal').addEventListener('click', () => $('#modal').classList.remove('open')); $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') e.currentTarget.classList.remove('open') });
     $('#downloadBtn').addEventListener('click', () => { const body = buildHtml(); if (!body) { toast('请先输入文章内容'); return } const file = `<!doctype html><html><head><meta charset="utf-8"><title>${esc($('#title').value || '公众号文章')}<\/title><\/head><body>${body}<\/body><\/html>`; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([file], { type: 'text/html' })); a.download = ($('#title').value.trim() || '公众号文章') + '.html'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 800); toast('HTML 文件已导出') });
-    $('#sampleBtn').addEventListener('click', () => { $('#title').value = '把复杂内容，变成一篇好读的推文'; $('#subtitle').value = '上传文字和图片，剩下的交给自动排版。'; $('#content').value = '## 为什么需要自动排版\n公众号文章的阅读场景主要发生在手机端。段落过长、层级不清或图片位置混乱，都会让读者快速离开。\n\n真正高效的工具，不应该让人反复调整字号和间距，而是先完成一套可靠的基础排版。\n\n> 好的版式不会抢走内容的注意力，它只是让信息更容易被看见。\n\n## 使用方法\n粘贴文章，上传图片，再选择适合内容气质的模板。预览确认后，可以直接复制到公众号编辑器。\n\n## 继续扩展\n后续还可以接入企业素材库、品牌色、固定页尾、二维码和团队模板，让每次发布都保持一致。'; render(); toast('示例内容已载入') });
-    render();
+    $('#sampleBtn').addEventListener('click', () => { $('#title').value = '把复杂内容，变成一篇好读的推文'; $('#subtitle').value = '上传文字和图片，剩下的交给自动排版。'; $('#content').value = '## 为什么需要自动排版\n公众号文章的阅读场景主要发生在手机端。段落过长、层级不清或图片位置混乱，都会让读者快速离开。\n\n真正高效的工具，不应该让人反复调整字号和间距，而是先完成一套可靠的基础排版。\n\n> 好的版式不会抢走内容的注意力，它只是让信息更容易被看见。\n\n## 使用方法\n粘贴文章，上传图片，再选择适合内容气质的模板。预览确认后，可以直接复制到公众号编辑器。\n\n## 继续扩展\n后续还可以接入企业素材库、品牌色、固定页尾、二维码和团队模板，让每次发布都保持一致。'; syncContentBlocks(); render(); toast('示例内容已载入') });
+    syncContentBlocks();
+render();
   </script>
 </body>
 
