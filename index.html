@@ -143,6 +143,42 @@
       font-size: 12px
     }
 
+    .profile-trigger {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 230px;
+      padding: 5px 10px 5px 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 253, 249, .86);
+      color: var(--ink)
+    }
+
+    .profile-trigger .user-pill {
+      padding: 0;
+      border: 0;
+      background: transparent
+    }
+
+    .header-avatar,
+    .profile-avatar {
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border-radius: 50%;
+      background: linear-gradient(140deg, var(--brand), #f4ad47) center/cover no-repeat;
+      color: #fff;
+      font-weight: 800
+    }
+
+    .header-avatar {
+      width: 30px;
+      height: 30px;
+      font-size: 12px
+    }
+
     .btn {
       border: 0;
       border-radius: 10px;
@@ -986,7 +1022,7 @@
 
     .auth-tabs {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: 5px;
       padding: 5px;
       margin-bottom: 20px;
@@ -1043,11 +1079,83 @@
       text-align: center
     }
 
+    .otp-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px
+    }
+
+    .text-button {
+      border: 0;
+      padding: 4px;
+      background: transparent;
+      color: var(--brand);
+      font-size: 12px
+    }
+
+    .text-button:disabled {
+      color: #aaa09a;
+      cursor: not-allowed
+    }
+
+    .profile-card {
+      width: min(520px, 100%);
+      max-height: min(760px, calc(100vh - 40px));
+      overflow-y: auto
+    }
+
+    .profile-avatar-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: #fff9f1
+    }
+
+    .profile-avatar {
+      width: 74px;
+      height: 74px;
+      font-size: 23px
+    }
+
+    .avatar-upload {
+      display: inline-block;
+      margin: 0 0 6px;
+      padding: 8px 12px;
+      border: 1px solid #e7c8aa;
+      border-radius: 9px;
+      background: #fff;
+      color: #8b5938;
+      cursor: pointer
+    }
+
+    .avatar-upload input {
+      display: none
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px
+    }
+
+    .profile-bio {
+      min-height: 92px;
+      resize: vertical
+    }
+
     @media(max-width:620px) {
       .cover-card { padding: 40px 22px; border-radius: 22px }
       .cover-actions { flex-direction: column }
       .cover-actions .btn { width: 100% }
       .user-pill { display: none }
+      .profile-trigger { padding-right: 6px }
+      .profile-grid { grid-template-columns: 1fr }
       #logoutBtn { padding-inline: 11px }
     }
 
@@ -1137,7 +1245,10 @@
         <div class="logo">豆</div><span>豆花小帮手</span><span class="tag">你的公众号排版助手</span>
       </div>
       <div class="header-actions">
-        <span class="user-pill" id="userEmail"></span>
+        <button class="profile-trigger" type="button" id="profileBtn" title="修改个人资料">
+          <span class="header-avatar" id="headerAvatar">豆</span>
+          <span class="user-pill" id="userEmail"></span>
+        </button>
         <button class="btn btn-soft" id="sampleBtn">载入示例</button>
         <button class="btn btn-primary" id="copyBtn">复制到公众号</button>
         <button class="btn btn-outline" type="button" id="logoutBtn">退出</button>
@@ -1161,7 +1272,7 @@
             <div class="upload-row">
               <label class="upload">📄 上传 TXT / MD<input id="textFile" type="file"
                   accept=".txt,.md,text/plain,text/markdown" /></label>
-              <label class="upload">🖼️ 批量上传图片<input id="imageFile" type="file" accept="image/*" multiple /></label>
+              <label class="upload">🖼️ 批量上传图片（永久）<input id="imageFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple /></label>
             </div>
             <div class="image-list" id="imageList"></div>
           </div>
@@ -1289,7 +1400,8 @@
         <button class="close" type="button" id="closeAuthModal" aria-label="关闭">×</button>
       </div>
       <div class="auth-tabs">
-        <button class="auth-tab active" type="button" data-auth-mode="login">登录</button>
+        <button class="auth-tab active" type="button" data-auth-mode="password">密码登录</button>
+        <button class="auth-tab" type="button" data-auth-mode="otp">验证码登录</button>
         <button class="auth-tab" type="button" data-auth-mode="register">注册</button>
       </div>
       <form id="authForm">
@@ -1297,7 +1409,7 @@
           <label for="authEmail">邮箱</label>
           <input class="input" id="authEmail" type="email" autocomplete="email" placeholder="name@example.com" required>
         </div>
-        <div class="auth-field">
+        <div class="auth-field" id="passwordField">
           <label for="authPassword">密码</label>
           <input class="input" id="authPassword" type="password" autocomplete="current-password" minlength="6" placeholder="至少 6 位" required>
         </div>
@@ -1305,10 +1417,55 @@
           <label for="authPasswordConfirm">确认密码</label>
           <input class="input" id="authPasswordConfirm" type="password" autocomplete="new-password" minlength="6" placeholder="再次输入密码">
         </div>
-        <button class="btn btn-primary auth-submit" type="submit" id="authSubmitBtn">登录并进入工作台</button>
+        <div class="auth-field" id="otpField" hidden>
+          <label for="authOtp">邮箱验证码</label>
+          <input class="input" id="authOtp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="输入邮件中的验证码">
+        </div>
+        <button class="btn btn-primary auth-submit" type="submit" id="authSubmitBtn">密码登录</button>
+        <div class="otp-actions" id="otpActions" hidden>
+          <button class="text-button" type="button" id="backToEmailBtn">返回修改邮箱</button>
+          <button class="text-button" type="button" id="resendOtpBtn">重新发送验证码</button>
+        </div>
         <p class="auth-message" id="authMessage" aria-live="polite"></p>
       </form>
-      <p class="auth-note">注册后请前往邮箱完成验证，再返回本网站登录。</p>
+      <p class="auth-note">支持密码或邮箱验证码登录；首次注册需输入邮箱验证码完成确认。</p>
+    </div>
+  </div>
+  <div class="auth-modal" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+    <div class="auth-card profile-card">
+      <div class="auth-head">
+        <h2 id="profileTitle">个人资料</h2>
+        <button class="close" type="button" id="closeProfileModal" aria-label="关闭">×</button>
+      </div>
+      <form id="profileForm">
+        <div class="profile-avatar-section">
+          <div class="profile-avatar" id="profileAvatarPreview">豆</div>
+          <div>
+            <label class="avatar-upload">选择头像<input id="profileAvatarFile" type="file" accept="image/png,image/jpeg,image/webp"></label>
+            <div class="hint">支持 JPG、PNG、WebP，文件不超过 2MB。</div>
+          </div>
+        </div>
+        <div class="profile-grid">
+          <div class="auth-field">
+            <label for="profileName">昵称</label>
+            <input class="input" id="profileName" maxlength="30" placeholder="怎么称呼你">
+          </div>
+          <div class="auth-field">
+            <label for="profileOrganization">单位 / 团队</label>
+            <input class="input" id="profileOrganization" maxlength="50" placeholder="选填">
+          </div>
+        </div>
+        <div class="auth-field">
+          <label for="profileEmail">登录邮箱</label>
+          <input class="input" id="profileEmail" type="email" readonly>
+        </div>
+        <div class="auth-field">
+          <label for="profileBio">个人简介</label>
+          <textarea class="input profile-bio" id="profileBio" maxlength="160" placeholder="简单介绍一下自己（选填）"></textarea>
+        </div>
+        <button class="btn btn-primary auth-submit" type="submit" id="profileSaveBtn">保存个人资料</button>
+        <p class="auth-message" id="profileMessage" aria-live="polite"></p>
+      </form>
     </div>
   </div>
   <div class="toast" id="toast"></div>
@@ -1327,27 +1484,48 @@
     const supabaseClient = window.supabase
       ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
       : null;
-    let authMode = 'login';
+    let authMode = 'password';
+    let authStep = 'credentials';
+    let pendingEmail = '';
+    let otpCountdownTimer = null;
+    let currentUser = null;
+    let selectedAvatarFile = null;
 
-    function setAuthMessage(message = '', isSuccess = false) {
-      const element = $('#authMessage');
+    function setMessage(selector, message = '', isSuccess = false) {
+      const element = $(selector);
       element.textContent = message;
       element.classList.toggle('success', isSuccess);
     }
 
+    function setAuthMessage(message = '', isSuccess = false) {
+      setMessage('#authMessage', message, isSuccess);
+    }
+
+    function setProfileMessage(message = '', isSuccess = false) {
+      setMessage('#profileMessage', message, isSuccess);
+    }
+
     function setAuthMode(mode) {
       authMode = mode;
-      const isRegister = mode === 'register';
+      authStep = 'credentials';
+      pendingEmail = '';
+      clearInterval(otpCountdownTimer);
       $$('.auth-tab').forEach(button => button.classList.toggle('active', button.dataset.authMode === mode));
-      $('#authTitle').textContent = isRegister ? '注册豆花小帮手' : '登录豆花小帮手';
-      $('#confirmPasswordField').hidden = !isRegister;
-      $('#authPasswordConfirm').required = isRegister;
-      $('#authPassword').autocomplete = isRegister ? 'new-password' : 'current-password';
-      $('#authSubmitBtn').textContent = isRegister ? '注册账号' : '登录并进入工作台';
+      $('#authTitle').textContent = mode === 'register' ? '注册豆花小帮手' : '登录豆花小帮手';
+      $('#authEmail').disabled = false;
+      $('#passwordField').hidden = mode === 'otp';
+      $('#confirmPasswordField').hidden = mode !== 'register';
+      $('#otpField').hidden = true;
+      $('#otpActions').hidden = true;
+      $('#authPassword').required = mode !== 'otp';
+      $('#authPasswordConfirm').required = mode === 'register';
+      $('#authOtp').required = false;
+      $('#authPassword').autocomplete = mode === 'register' ? 'new-password' : 'current-password';
+      $('#authSubmitBtn').textContent = mode === 'password' ? '密码登录' : mode === 'otp' ? '获取登录验证码' : '注册并获取验证码';
       setAuthMessage();
     }
 
-    function openAuthModal(mode = 'login') {
+    function openAuthModal(mode = 'password') {
       setAuthMode(mode);
       $('#authModal').classList.add('open');
       setTimeout(() => $('#authEmail').focus(), 80);
@@ -1355,35 +1533,148 @@
 
     function closeAuthModal() {
       $('#authModal').classList.remove('open');
+      clearInterval(otpCountdownTimer);
       setAuthMessage();
+    }
+
+    function startOtpCountdown() {
+      clearInterval(otpCountdownTimer);
+      let seconds = 60;
+      const button = $('#resendOtpBtn');
+      button.disabled = true;
+      button.textContent = `${seconds} 秒后可重发`;
+      otpCountdownTimer = setInterval(() => {
+        seconds -= 1;
+        button.textContent = seconds > 0 ? `${seconds} 秒后可重发` : '重新发送验证码';
+        if (seconds <= 0) {
+          clearInterval(otpCountdownTimer);
+          button.disabled = false;
+        }
+      }, 1000);
+    }
+
+    function enterOtpStep(email, message) {
+      authStep = 'otp';
+      pendingEmail = email;
+      $('#authEmail').disabled = true;
+      $('#passwordField').hidden = true;
+      $('#confirmPasswordField').hidden = true;
+      $('#otpField').hidden = false;
+      $('#otpActions').hidden = false;
+      $('#authPassword').required = false;
+      $('#authPasswordConfirm').required = false;
+      $('#authOtp').required = true;
+      $('#authOtp').value = '';
+      $('#authSubmitBtn').textContent = authMode === 'register' ? '验证并完成注册' : '验证并登录';
+      setAuthMessage(message, true);
+      startOtpCountdown();
+      setTimeout(() => $('#authOtp').focus(), 80);
+    }
+
+    function avatarInitials(user) {
+      const name = user?.user_metadata?.display_name?.trim();
+      return (name || user?.email || '豆').slice(0, 1).toUpperCase();
+    }
+
+    function paintAvatar(element, url, fallback) {
+      element.style.backgroundImage = url ? `url("${String(url).replace(/["\\]/g, '')}")` : '';
+      element.textContent = url ? '' : fallback;
+    }
+
+    function updateHeaderProfile(user) {
+      const metadata = user?.user_metadata || {};
+      $('#userEmail').textContent = metadata.display_name?.trim() || user?.email || '';
+      paintAvatar($('#headerAvatar'), metadata.avatar_url, avatarInitials(user));
     }
 
     function applySession(session) {
       const isSignedIn = Boolean(session?.user);
+      currentUser = session?.user || null;
       $('#cover').classList.toggle('hidden', isSignedIn);
       $('.app').classList.toggle('workspace-visible', isSignedIn);
-      $('#userEmail').textContent = session?.user?.email || '';
-      if (isSignedIn) closeAuthModal();
+      if (isSignedIn) {
+        updateHeaderProfile(currentUser);
+        closeAuthModal();
+      } else {
+        $('#profileModal').classList.remove('open');
+      }
     }
 
     function friendlyAuthError(error) {
       const message = error?.message || '操作失败，请稍后重试';
       const translations = {
         'Invalid login credentials': '邮箱或密码不正确',
-        'Email not confirmed': '请先前往邮箱完成验证',
+        'Email not confirmed': '该邮箱尚未完成验证码确认，请重新注册或使用验证码登录',
         'User already registered': '这个邮箱已经注册，请直接登录',
         'Password should be at least 6 characters': '密码至少需要 6 位',
-        'Unable to validate email address: invalid format': '邮箱格式不正确'
+        'Unable to validate email address: invalid format': '邮箱格式不正确',
+        'Token has expired or is invalid': '验证码错误或已过期，请重新获取',
+        'Email rate limit exceeded': '验证码发送过于频繁，请稍后再试'
       };
       return translations[message] || message;
     }
 
-    $('#coverLoginBtn').addEventListener('click', () => openAuthModal('login'));
+    async function sendCode() {
+      const email = $('#authEmail').value.trim();
+      if (!email) {
+        setAuthMessage('请先输入邮箱');
+        return false;
+      }
+      if (authMode === 'register') {
+        const password = $('#authPassword').value;
+        if (password.length < 6) {
+          setAuthMessage('密码至少需要 6 位');
+          return false;
+        }
+        if (password !== $('#authPasswordConfirm').value) {
+          setAuthMessage('两次输入的密码不一致');
+          return false;
+        }
+        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+        if (error) throw error;
+        if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+          throw new Error('User already registered');
+        }
+        if (data.session) {
+          applySession(data.session);
+          return true;
+        }
+        enterOtpStep(email, `验证码已发送到 ${email}`);
+        return true;
+      }
+      const { error } = await supabaseClient.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: false }
+      });
+      if (error) throw error;
+      enterOtpStep(email, `登录验证码已发送到 ${email}`);
+      return true;
+    }
+
+    $('#coverLoginBtn').addEventListener('click', () => openAuthModal('password'));
     $('#coverRegisterBtn').addEventListener('click', () => openAuthModal('register'));
     $$('.auth-tab').forEach(button => button.addEventListener('click', () => setAuthMode(button.dataset.authMode)));
     $('#closeAuthModal').addEventListener('click', closeAuthModal);
     $('#authModal').addEventListener('click', event => {
       if (event.target.id === 'authModal') closeAuthModal();
+    });
+
+    $('#backToEmailBtn').addEventListener('click', () => setAuthMode(authMode));
+    $('#resendOtpBtn').addEventListener('click', async () => {
+      if (!supabaseClient || !pendingEmail) return;
+      const button = $('#resendOtpBtn');
+      button.disabled = true;
+      try {
+        const result = authMode === 'register'
+          ? await supabaseClient.auth.resend({ type: 'signup', email: pendingEmail })
+          : await supabaseClient.auth.signInWithOtp({ email: pendingEmail, options: { shouldCreateUser: false } });
+        if (result.error) throw result.error;
+        setAuthMessage('验证码已重新发送', true);
+        startOtpCountdown();
+      } catch (error) {
+        setAuthMessage(friendlyAuthError(error));
+        button.disabled = false;
+      }
     });
 
     $('#authForm').addEventListener('submit', async event => {
@@ -1392,39 +1683,128 @@
         setAuthMessage('登录组件加载失败，请检查网络后刷新页面');
         return;
       }
-      const email = $('#authEmail').value.trim();
-      const password = $('#authPassword').value;
       const submitButton = $('#authSubmitBtn');
-      if (authMode === 'register' && password !== $('#authPasswordConfirm').value) {
-        setAuthMessage('两次输入的密码不一致');
-        return;
-      }
       submitButton.disabled = true;
-      submitButton.textContent = authMode === 'register' ? '正在注册…' : '正在登录…';
+      const originalText = submitButton.textContent;
+      submitButton.textContent = authStep === 'otp' ? '正在验证…' : '正在处理…';
       try {
-        if (authMode === 'register') {
-          const redirectUrl = window.location.origin + window.location.pathname;
-          const { data, error } = await supabaseClient.auth.signUp({
-            email,
-            password,
-            options: { emailRedirectTo: redirectUrl }
+        if (authStep === 'otp') {
+          const token = $('#authOtp').value.trim();
+          if (!token) throw new Error('请输入验证码');
+          const { data, error } = await supabaseClient.auth.verifyOtp({
+            email: pendingEmail,
+            token,
+            type: 'email'
           });
           if (error) throw error;
-          if (data.session) {
-            applySession(data.session);
-          } else {
-            setAuthMessage('注册成功，请查收验证邮件，验证后再登录', true);
-          }
-        } else {
+          applySession(data.session);
+        } else if (authMode === 'password') {
+          const email = $('#authEmail').value.trim();
+          const password = $('#authPassword').value;
           const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
           if (error) throw error;
           applySession(data.session);
+        } else {
+          await sendCode();
         }
       } catch (error) {
         setAuthMessage(friendlyAuthError(error));
       } finally {
         submitButton.disabled = false;
-        submitButton.textContent = authMode === 'register' ? '注册账号' : '登录并进入工作台';
+        if ($('#authModal').classList.contains('open')) {
+          submitButton.textContent = authStep === 'otp'
+            ? (authMode === 'register' ? '验证并完成注册' : '验证并登录')
+            : originalText;
+        }
+      }
+    });
+
+    function openProfileModal() {
+      if (!currentUser) return;
+      const metadata = currentUser.user_metadata || {};
+      selectedAvatarFile = null;
+      $('#profileName').value = metadata.display_name || '';
+      $('#profileOrganization').value = metadata.organization || '';
+      $('#profileEmail').value = currentUser.email || '';
+      $('#profileBio').value = metadata.bio || '';
+      $('#profileAvatarFile').value = '';
+      paintAvatar($('#profileAvatarPreview'), metadata.avatar_url, avatarInitials(currentUser));
+      setProfileMessage();
+      $('#profileModal').classList.add('open');
+    }
+
+    function closeProfileModal() {
+      $('#profileModal').classList.remove('open');
+      setProfileMessage();
+    }
+
+    $('#profileBtn').addEventListener('click', openProfileModal);
+    $('#closeProfileModal').addEventListener('click', closeProfileModal);
+    $('#profileModal').addEventListener('click', event => {
+      if (event.target.id === 'profileModal') closeProfileModal();
+    });
+
+    $('#profileAvatarFile').addEventListener('change', event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        setProfileMessage('请选择图片文件');
+        event.target.value = '';
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        setProfileMessage('头像不能超过 2MB');
+        event.target.value = '';
+        return;
+      }
+      selectedAvatarFile = file;
+      paintAvatar($('#profileAvatarPreview'), URL.createObjectURL(file), '');
+    });
+
+    $('#profileForm').addEventListener('submit', async event => {
+      event.preventDefault();
+      if (!supabaseClient || !currentUser) return;
+      const saveButton = $('#profileSaveBtn');
+      saveButton.disabled = true;
+      saveButton.textContent = '正在保存…';
+      setProfileMessage();
+      try {
+        const oldMetadata = currentUser.user_metadata || {};
+        let avatarUrl = oldMetadata.avatar_url || '';
+        let avatarPath = oldMetadata.avatar_path || '';
+        if (selectedAvatarFile) {
+          const extension = (selectedAvatarFile.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '');
+          const newPath = `${currentUser.id}/avatar-${Date.now()}.${extension}`;
+          const { error: uploadError } = await supabaseClient.storage
+            .from('avatars')
+            .upload(newPath, selectedAvatarFile, { cacheControl: '3600', upsert: false });
+          if (uploadError) throw uploadError;
+          avatarUrl = supabaseClient.storage.from('avatars').getPublicUrl(newPath).data.publicUrl;
+          if (avatarPath) await supabaseClient.storage.from('avatars').remove([avatarPath]);
+          avatarPath = newPath;
+        }
+        const { data, error } = await supabaseClient.auth.updateUser({
+          data: {
+            display_name: $('#profileName').value.trim(),
+            organization: $('#profileOrganization').value.trim(),
+            bio: $('#profileBio').value.trim(),
+            avatar_url: avatarUrl,
+            avatar_path: avatarPath
+          }
+        });
+        if (error) throw error;
+        currentUser = data.user;
+        updateHeaderProfile(currentUser);
+        setProfileMessage('个人资料已保存', true);
+        setTimeout(closeProfileModal, 650);
+      } catch (error) {
+        const message = error?.message?.includes('row-level security')
+          ? '头像存储权限尚未配置，请先完成 Supabase Storage 设置'
+          : (error?.message || '保存失败，请稍后重试');
+        setProfileMessage(message);
+      } finally {
+        saveButton.disabled = false;
+        saveButton.textContent = '保存个人资料';
       }
     });
 
@@ -1435,7 +1815,9 @@
     });
 
     document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && $('#authModal').classList.contains('open')) closeAuthModal();
+      if (event.key !== 'Escape') return;
+      if ($('#authModal').classList.contains('open')) closeAuthModal();
+      if ($('#profileModal').classList.contains('open')) closeProfileModal();
     });
 
     async function initializeAuth() {
@@ -1749,13 +2131,15 @@ $('#moveDownBtn').addEventListener('click', () => {
   moveSelectedBlock(1);
 });
 
-$('#deleteBlockBtn').addEventListener('click', () => {
+$('#deleteBlockBtn').addEventListener('click', async () => {
   const index = state.selectedBlockIndex;
 
   if (index === null) return;
   if (state.selectedBlockType === 'image') {
-    URL.revokeObjectURL(state.images[index].url);
-    state.images.splice(index, 1);
+    $('#deleteBlockBtn').disabled = true;
+    const removed = await removeArticleImage(index);
+    $('#deleteBlockBtn').disabled = false;
+    if (!removed) return;
     renderImages();
   } else {
     state.blocks.splice(index, 1);
@@ -1812,10 +2196,121 @@ $('#deleteBlockBtn').addEventListener('click', () => {
       render();
     });
     $('#textFile').addEventListener('change', e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { $('#content').value = r.result; syncContentBlocks(); render(); toast('文字已导入并完成排版') }; r.readAsText(f, 'utf-8') });
-    $('#imageFile').addEventListener('change', e => { [...e.target.files].forEach(f => state.images.push({ name: f.name, url: URL.createObjectURL(f), width: 100, align: 'center' })); renderImages(); render(); toast(`已添加 ${e.target.files.length} 张图片`) });
-    function renderImages() { const box = $('#imageList'); box.innerHTML = state.images.map((im, i) => `<div class="image-item"><img class="thumb" src="${im.url}"/><span class="image-name">${esc(im.name)}</span><span><button class="tiny" data-up="${i}">↑</button><button class="tiny" data-del="${i}">×</button></span></div>`).join('') }
-    $('#imageList').addEventListener('click', e => { if (e.target.dataset.del !== undefined) { const i = +e.target.dataset.del; URL.revokeObjectURL(state.images[i].url); state.images.splice(i, 1) } if (e.target.dataset.up !== undefined) { const i = +e.target.dataset.up; if (i > 0) [state.images[i - 1], state.images[i]] = [state.images[i], state.images[i - 1]] } renderImages(); render() });
-    async function copyHtml() { const html = buildHtml(); if (!html) { toast('请先输入文章内容'); return } try { if (window.ClipboardItem) { await navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([html], { type: 'text/html' }), 'text/plain': new Blob([$('#preview').innerText], { type: 'text/plain' }) })]) } else { const range = document.createRange(); range.selectNodeContents($('#preview')); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range); document.execCommand('copy'); sel.removeAllRanges() } toast('已复制，可直接粘贴到公众号编辑器') } catch (err) { toast('浏览器未授权复制，请查看 HTML 手动复制') } }
+    function articleImageExtension(file) {
+      const mimeExtensions = {
+        'image/jpeg': 'jpg',
+        'image/png': 'png',
+        'image/webp': 'webp',
+        'image/gif': 'gif'
+      };
+      return mimeExtensions[file.type] || (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    async function uploadArticleImages(files) {
+      if (!supabaseClient || !currentUser) {
+        toast('请先登录后再上传图片');
+        return;
+      }
+
+      const acceptedTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+      const validFiles = files.filter(file => acceptedTypes.has(file.type) && file.size <= 10 * 1024 * 1024);
+      const rejectedCount = files.length - validFiles.length;
+      if (!validFiles.length) {
+        toast('请选择 JPG、PNG、WebP 或 GIF 图片，单张不超过 10MB');
+        return;
+      }
+
+      const input = $('#imageFile');
+      input.disabled = true;
+      let uploadedCount = 0;
+
+      try {
+        for (const file of validFiles) {
+          toast(`正在上传第 ${uploadedCount + 1}/${validFiles.length} 张图片…`);
+          const extension = articleImageExtension(file);
+          const uniqueName = window.crypto?.randomUUID
+            ? window.crypto.randomUUID()
+            : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+          const storagePath = `${currentUser.id}/${uniqueName}.${extension}`;
+          const { error: uploadError } = await supabaseClient.storage
+            .from('article-images')
+            .upload(storagePath, file, {
+              cacheControl: '31536000',
+              contentType: file.type,
+              upsert: false
+            });
+          if (uploadError) throw uploadError;
+
+          const publicUrl = supabaseClient.storage
+            .from('article-images')
+            .getPublicUrl(storagePath).data.publicUrl;
+
+          state.images.push({
+            name: file.name,
+            url: publicUrl,
+            storagePath,
+            width: 100,
+            align: 'center'
+          });
+          uploadedCount += 1;
+          renderImages();
+          render();
+        }
+
+        const rejectedText = rejectedCount ? `，另有 ${rejectedCount} 张格式或大小不符合要求` : '';
+        toast(`已上传 ${uploadedCount} 张永久图片${rejectedText}`);
+      } catch (error) {
+        const message = error?.message?.includes('Bucket not found')
+          ? '尚未建立 article-images 图片库'
+          : error?.message?.includes('row-level security')
+            ? '图片库上传权限尚未配置'
+            : `上传失败：${error?.message || '请稍后重试'}`;
+        toast(message);
+      } finally {
+        input.disabled = false;
+        input.value = '';
+      }
+    }
+
+    async function removeArticleImage(index) {
+      const image = state.images[index];
+      if (!image) return false;
+
+      if (image.storagePath && supabaseClient) {
+        const { error } = await supabaseClient.storage
+          .from('article-images')
+          .remove([image.storagePath]);
+        if (error) {
+          toast(`云端图片删除失败：${error.message}`);
+          return false;
+        }
+      } else if (image.url?.startsWith('blob:')) {
+        URL.revokeObjectURL(image.url);
+      }
+
+      state.images.splice(index, 1);
+      return true;
+    }
+
+    $('#imageFile').addEventListener('change', async event => {
+      await uploadArticleImages([...event.target.files]);
+    });
+    function renderImages() { const box = $('#imageList'); box.innerHTML = state.images.map((im, i) => `<div class="image-item"><img class="thumb" src="${im.url}"/><span class="image-name">${im.storagePath ? '☁️ ' : ''}${esc(im.name)}</span><span><button class="tiny" data-up="${i}">↑</button><button class="tiny" data-del="${i}">×</button></span></div>`).join('') }
+    $('#imageList').addEventListener('click', async e => {
+      if (e.target.dataset.del !== undefined) {
+        const i = +e.target.dataset.del;
+        e.target.disabled = true;
+        const removed = await removeArticleImage(i);
+        if (removed) toast('图片已从文章和云端删除');
+      }
+      if (e.target.dataset.up !== undefined) {
+        const i = +e.target.dataset.up;
+        if (i > 0) [state.images[i - 1], state.images[i]] = [state.images[i], state.images[i - 1]];
+      }
+      renderImages();
+      render();
+    });
+    async function copyHtml() { const html = buildHtml(); if (!html) { toast('请先输入文章内容'); return } try { if (window.ClipboardItem) { await navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([html], { type: 'text/html' }), 'text/plain': new Blob([$('#preview').innerText], { type: 'text/plain' }) })]) } else { const range = document.createRange(); range.selectNodeContents($('#preview')); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range); document.execCommand('copy'); sel.removeAllRanges() } toast('已复制，可粘贴到秀米或公众号编辑器') } catch (err) { toast('浏览器未授权复制，请查看 HTML 手动复制') } }
     $('#copyBtn').addEventListener('click', copyHtml);
     $('#htmlBtn').addEventListener('click', () => { $('#modal').classList.add('open'); render() }); $('#closeModal').addEventListener('click', () => $('#modal').classList.remove('open')); $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') e.currentTarget.classList.remove('open') });
     $('#downloadBtn').addEventListener('click', () => { const body = buildHtml(); if (!body) { toast('请先输入文章内容'); return } const file = `<!doctype html><html><head><meta charset="utf-8"><title>${esc($('#title').value || '公众号文章')}<\/title><\/head><body>${body}<\/body><\/html>`; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([file], { type: 'text/html' })); a.download = ($('#title').value.trim() || '公众号文章') + '.html'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 800); toast('HTML 文件已导出') });
