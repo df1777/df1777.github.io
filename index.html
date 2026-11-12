@@ -529,6 +529,62 @@
       min-width: 0
     }
 
+    .reference-preview-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 7px
+    }
+
+    .reference-preview-actions .reference-palette {
+      min-width: 0;
+      margin-top: 0
+    }
+
+    .reference-preview-actions .tiny {
+      flex: 0 0 auto;
+      white-space: nowrap;
+      writing-mode: horizontal-tb
+    }
+
+    .ai-prompt-field {
+      display: block;
+      margin-top: 11px
+    }
+
+    .ai-prompt-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 5px;
+      color: #70452f;
+      font-size: 11px;
+      font-weight: 700
+    }
+
+    .ai-prompt-input {
+      display: block;
+      width: 100%;
+      min-height: 62px;
+      padding: 9px 11px;
+      resize: vertical;
+      border: 1px solid rgba(232,116,44,.25);
+      border-radius: 10px;
+      outline: 0;
+      background: rgba(255,255,255,.9);
+      color: var(--ink);
+      font: inherit;
+      font-size: 12px;
+      line-height: 1.55;
+      box-sizing: border-box
+    }
+
+    .ai-prompt-input:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(232,116,44,.1)
+    }
+
     .reference-file-name {
       display: block;
       overflow: hidden;
@@ -1411,10 +1467,16 @@
                 <div class="reference-preview-info">
                   <span class="reference-file-name" id="referenceFileName"></span>
                   <div class="hint">图片会先在浏览器中压缩；云端 AI 不可用时自动使用本地创意分析。</div>
-                  <div class="reference-palette" id="referencePalette"></div>
-                  <button class="tiny" type="button" id="removeReferenceBtn">移除参考图</button>
+                  <div class="reference-preview-actions">
+                    <div class="reference-palette" id="referencePalette"></div>
+                    <button class="tiny" type="button" id="removeReferenceBtn">移除</button>
+                  </div>
                 </div>
               </div>
+              <label class="ai-prompt-field" for="aiLayoutPrompt">
+                <span class="ai-prompt-head"><span>排版要求（可选）</span><span><b id="aiPromptCount">0</b>/300</span></span>
+                <textarea class="ai-prompt-input" id="aiLayoutPrompt" maxlength="300" placeholder="例如：整体更活泼，标题居中，减少正文卡片，不要网格背景，图片尽量大一些。"></textarea>
+              </label>
               <div class="reference-mode-row">
                 <select class="control-select" id="referenceMode" aria-label="参考图仿排版模式">
                   <option value="balanced">平衡适配：推荐</option>
@@ -2857,6 +2919,33 @@ function safePlanValue(value, allowed, fallback) {
   return allowed.includes(value) ? value : fallback;
 }
 
+function applyPromptPreferences(plan) {
+  const request = ($('#aiLayoutPrompt')?.value || '').trim();
+  if (!request) return plan;
+  if (/不要.{0,3}(背景|纹理)|纯色|留白/.test(request)) plan.backgroundVariant = 'clean';
+  if (/渐变背景/.test(request)) plan.backgroundVariant = 'gradient';
+  if (/点阵|圆点背景/.test(request)) plan.backgroundVariant = 'dots';
+  if (/网格/.test(request) && !/不要.{0,3}网格/.test(request)) plan.backgroundVariant = 'grid';
+  if (/标题居中/.test(request)) plan.titleVariant = 'badge';
+  if (/标题.{0,4}(色块|醒目|突出)/.test(request)) plan.titleVariant = 'gradient';
+  if (/标题.{0,4}(简洁|克制)/.test(request)) plan.titleVariant = 'clean';
+  if (/宋体|书刊|学术/.test(request)) plan.fontFamily = 'serif';
+  if (/楷体|手写/.test(request)) plan.fontFamily = 'kai';
+  if (/圆体|可爱|活泼/.test(request)) plan.fontFamily = 'rounded';
+  if (/黑体|现代|简洁/.test(request) && !/宋体|楷体|圆体/.test(request)) plan.fontFamily = 'sans';
+  if (/不要.{0,3}分割线/.test(request)) plan.dividerVariant = 'none';
+  if (/不要.{0,3}卡片|减少.{0,3}卡片|少用.{0,3}卡片/.test(request)) {
+    plan.paragraphVariant = 'plain';
+    if (Array.isArray(plan.blocks)) plan.blocks.forEach((item, index) => {
+      if (state.blocks[index]?.type === 'p') item.variant = 'plain';
+    });
+  }
+  if (/图片.{0,4}(大|通栏|铺满)/.test(request) && Array.isArray(plan.images)) {
+    plan.images.forEach(item => { item.width = 100; item.align = 'center'; });
+  }
+  return plan;
+}
+
 function enforceCreativeStrength(rawPlan) {
   const strength = $('#creativeStrength')?.value || 'balanced';
   const plan = {
@@ -2870,14 +2959,14 @@ function enforceCreativeStrength(rawPlan) {
     if (plan.backgroundVariant !== 'clean') plan.backgroundVariant = 'clean';
     if (plan.titleVariant === 'gradient' || plan.titleVariant === 'badge') plan.titleVariant = 'accent-line';
     plan.titleFontSize = Math.min(28, Number(plan.titleFontSize) || 28);
-    return plan;
+    return applyPromptPreferences(plan);
   }
 
   if (strength === 'balanced') {
     if (plan.backgroundVariant === 'clean') plan.backgroundVariant = 'gradient';
     if (plan.titleVariant === 'clean') plan.titleVariant = 'accent-line';
     plan.titleFontSize = Math.max(28, Number(plan.titleFontSize) || 28);
-    return plan;
+    return applyPromptPreferences(plan);
   }
 
   const saturation = referenceVisuals?.averageSaturation || 0;
@@ -2907,7 +2996,7 @@ function enforceCreativeStrength(rawPlan) {
     const existing = plan.images.find(item => Number(item.index) === index) || {};
     return { ...existing, index, variant: plan.imageVariant, align: index % 2 ? 'right' : 'center', width: existing.width || (index % 2 ? 82 : 94) };
   });
-  return plan;
+  return applyPromptPreferences(plan);
 }
 
 function applyReferencePlan(rawPlan, sourceLabel) {
@@ -2981,6 +3070,7 @@ async function requestAIReferencePlan() {
       referenceImage: referenceImageDataUrl,
       mode: $('#referenceMode').value,
       creativeStrength: $('#creativeStrength').value,
+      userPrompt: $('#aiLayoutPrompt').value.trim(),
       article
     }
   });
@@ -3006,6 +3096,10 @@ function clearReferenceImage() {
     function toast(msg) { const el = $('#toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(window.__toast); window.__toast = setTimeout(() => el.classList.remove('show'), 2200) }
     $('#title').addEventListener('input', render);
 $('#subtitle').addEventListener('input', render);
+
+$('#aiLayoutPrompt').addEventListener('input', event => {
+  $('#aiPromptCount').textContent = event.target.value.length;
+});
 
 $('#content').addEventListener('input', () => {
   syncContentBlocks();
