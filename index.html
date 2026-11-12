@@ -127,11 +127,15 @@
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 10px
+      justify-content: flex-end;
+      gap: 10px;
+      min-width: 0
     }
 
     .user-pill {
-      max-width: 190px;
+      width: auto;
+      min-width: 0;
+      max-width: min(24vw, 260px);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -147,7 +151,10 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      max-width: 230px;
+      width: auto;
+      min-width: 0;
+      max-width: min(30vw, 310px);
+      flex: 0 1 auto;
       padding: 5px 10px 5px 6px;
       border: 1px solid var(--line);
       border-radius: 999px;
@@ -156,6 +163,9 @@
     }
 
     .profile-trigger .user-pill {
+      width: auto;
+      min-width: 1.5em;
+      max-width: 100%;
       padding: 0;
       border: 0;
       background: transparent
@@ -423,6 +433,7 @@
       border-radius: 8px;
       background: #fff;
       color: var(--ink);
+      font-size: 12px;
       outline: none
     }
 
@@ -628,7 +639,42 @@
 
     .preview-actions {
       display: flex;
+      align-items: center;
       gap: 8px
+    }
+
+    .export-format {
+      width: 118px;
+      height: 38px;
+      padding: 0 9px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fffdf9;
+      color: #66544a;
+      font-size: 12px;
+      outline: none
+    }
+
+    .export-format:focus {
+      border-color: #e9a36e;
+      box-shadow: 0 0 0 3px rgba(232, 116, 44, .08)
+    }
+
+    .export-stage {
+      position: fixed;
+      left: -100000px;
+      top: 0;
+      width: 757px;
+      padding: 0;
+      background: #fff;
+      pointer-events: none
+    }
+
+    .export-article {
+      width: 677px;
+      min-height: 200px;
+      padding: 40px;
+      background: #fff
     }
 
     .preview-wrap {
@@ -741,57 +787,6 @@
       transform: translate(-50%, 0)
     }
 
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(25, 20, 36, .45);
-      display: none;
-      place-items: center;
-      z-index: 50;
-      padding: 20px
-    }
-
-    .modal.open {
-      display: grid
-    }
-
-    .modal-card {
-      width: min(620px, 100%);
-      max-height: 80vh;
-      overflow: auto;
-      background: #fff;
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      padding: 24px
-    }
-
-    .modal-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px
-    }
-
-    .close {
-      border: 0;
-      background: #f6e7da;
-      border-radius: 8px;
-      width: 32px;
-      height: 32px
-    }
-
-    .code {
-      background: #211f29;
-      color: #e8e2f5;
-      padding: 14px;
-      border-radius: 10px;
-      font: 12px/1.6 Consolas, monospace;
-      white-space: pre-wrap;
-      word-break: break-all;
-      max-height: 380px;
-      overflow: auto
-    }
-
     @media(max-width:980px) {
       main {
         grid-template-columns: 1fr
@@ -897,32 +892,24 @@
     .block-toolbar {
       display: none;
       align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 10px 12px;
+      justify-content: flex-start;
+      flex-wrap: nowrap;
+      gap: 9px;
+      padding: 8px 10px;
       margin: 10px 18px 12px;
       border: 1px solid rgba(232, 116, 44, .22);
       border-radius: 14px;
       background: linear-gradient(135deg, rgba(255, 250, 242, .98), rgba(250, 239, 225, .98));
       box-shadow: 0 5px 16px rgba(105, 72, 45, .08);
       color: #72513d;
-      font-size: 13px
+      font-size: 12px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: thin
     }
 
     .block-toolbar.show {
       display: flex
-    }
-
-    #selectedBlockLabel {
-      flex: 0 0 auto;
-      padding: 6px 10px;
-      border: 1px solid rgba(232, 116, 44, .16);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, .88);
-      color: #9a552c;
-      font-size: 12px;
-      font-weight: 650;
-      white-space: nowrap
     }
 
     .block-width-control {
@@ -966,7 +953,8 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      flex-wrap: wrap;
+      flex: 0 0 auto;
+      flex-wrap: nowrap;
       gap: 5px;
       padding: 4px;
       border: 1px solid rgba(232, 116, 44, .14);
@@ -1355,12 +1343,12 @@
 
     @media (max-width:1250px) and (min-width:981px) {
       .block-toolbar {
-        align-items: flex-start;
-        flex-wrap: wrap
+        align-items: center;
+        flex-wrap: nowrap
       }
 
       .block-toolbar-actions {
-        flex: 1 1 100%;
+        flex: 0 0 auto;
         justify-content: flex-start
       }
     }
@@ -1393,7 +1381,7 @@
           <span class="user-pill" id="userEmail"></span>
         </button>
         <button class="btn btn-soft" id="sampleBtn">载入示例</button>
-        <button class="btn btn-primary" id="copyBtn">复制到公众号</button>
+        <button class="btn btn-primary" id="copyBtn">复制到排版工具</button>
         <button class="btn btn-outline" type="button" id="logoutBtn">退出</button>
       </div>
     </header>
@@ -1402,6 +1390,33 @@
         <div class="panel-title"><span>内容与样式</span><span class="step">上传内容即可自动排版</span></div>
         <div class="editor">
           <div class="form">
+            <section class="reference-layout-card" style="margin-top:0">
+              <div class="reference-layout-head">
+                <div>
+                  <b>千问 AI 参考图仿排版</b>
+                  <small>先上传一张喜欢的排版截图，AI 会提取配色、层级与版式，不会把参考图插入正文。</small>
+                </div>
+                <label class="upload">上传参考图<input id="referenceImageFile" type="file" accept="image/jpeg,image/png,image/webp" /></label>
+              </div>
+              <div class="reference-preview" id="referencePreview">
+                <img id="referencePreviewImage" alt="参考排版图预览">
+                <div class="reference-preview-info">
+                  <span class="reference-file-name" id="referenceFileName"></span>
+                  <div class="hint">图片会先在浏览器中压缩；千问 AI 不可用时自动使用免费的本地配色分析。</div>
+                  <div class="reference-palette" id="referencePalette"></div>
+                  <button class="tiny" type="button" id="removeReferenceBtn">移除参考图</button>
+                </div>
+              </div>
+              <div class="reference-mode-row">
+                <select class="control-select" id="referenceMode" aria-label="参考图仿排版模式">
+                  <option value="balanced">平衡适配：推荐</option>
+                  <option value="faithful">高度参考：尽量接近</option>
+                  <option value="content">内容优先：只提取视觉气质</option>
+                </select>
+                <button class="btn btn-primary" type="button" id="analyzeReferenceBtn">千问分析并套用</button>
+              </div>
+              <div class="reference-status" id="referenceStatus">未上传参考图</div>
+            </section>
             <div class="field"><label for="title">文章标题</label><input class="input" id="title" placeholder="输入推文标题" />
             </div>
             <div class="field"><label for="subtitle">摘要 / 导语（可选）</label><input class="input" id="subtitle"
@@ -1418,33 +1433,6 @@
               <label class="upload">🖼️ 批量上传图片（永久）<input id="imageFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple /></label>
             </div>
             <div class="image-list" id="imageList"></div>
-            <section class="reference-layout-card">
-              <div class="reference-layout-head">
-                <div>
-                  <b>AI 参考图仿排版</b>
-                  <small>参考图只用于分析配色、层级与版式，不会作为正文图片插入文章。</small>
-                </div>
-                <label class="upload">上传参考图<input id="referenceImageFile" type="file" accept="image/jpeg,image/png,image/webp" /></label>
-              </div>
-              <div class="reference-preview" id="referencePreview">
-                <img id="referencePreviewImage" alt="参考排版图预览">
-                <div class="reference-preview-info">
-                  <span class="reference-file-name" id="referenceFileName"></span>
-                  <div class="hint">图片会先在浏览器中压缩；AI不可用时自动使用免费的本地配色分析。</div>
-                  <div class="reference-palette" id="referencePalette"></div>
-                  <button class="tiny" type="button" id="removeReferenceBtn">移除参考图</button>
-                </div>
-              </div>
-              <div class="reference-mode-row">
-                <select class="control-select" id="referenceMode" aria-label="参考图仿排版模式">
-                  <option value="balanced">平衡适配：推荐</option>
-                  <option value="faithful">高度参考：尽量接近</option>
-                  <option value="content">内容优先：只提取视觉气质</option>
-                </select>
-                <button class="btn btn-primary" type="button" id="analyzeReferenceBtn">AI分析并套用</button>
-              </div>
-              <div class="reference-status" id="referenceStatus">未上传参考图</div>
-            </section>
           </div>
           <aside class="sidebar">
             <div class="section-head">自定义颜色</div>
@@ -1588,11 +1576,16 @@
       </section>
       <section class="panel preview-panel">
         <div class="preview-toolbar"><b>微信手机预览</b>
-          <div class="preview-actions"><button class="btn btn-outline" id="htmlBtn">查看 HTML</button><button
-              class="btn btn-outline" id="downloadBtn">导出文件</button></div>
+          <div class="preview-actions">
+            <select class="export-format" id="exportFormat" aria-label="导出格式">
+              <option value="png">PNG 长图</option>
+              <option value="jpg">JPG 长图</option>
+              <option value="pdf">PDF 文档</option>
+            </select>
+            <button class="btn btn-outline" id="downloadBtn">导出</button>
+          </div>
         </div>
         <div class="block-toolbar" id="blockToolbar">
-          <span id="selectedBlockLabel">未选择正文</span>
           <label class="block-style-control">
             <span>模块样式</span>
             <select id="blockVariantSelect"></select>
@@ -1704,14 +1697,9 @@
     </div>
   </div>
   <div class="toast" id="toast"></div>
-  <div class="modal" id="modal">
-    <div class="modal-card">
-      <div class="modal-head"><b>可复制的公众号 HTML</b><button class="close" id="closeModal">×</button></div>
-      <div class="hint" style="margin-bottom:10px">推荐直接点击“复制到公众号”；此处代码用于开发检查或二次编辑。</div>
-      <div class="code" id="code"></div>
-    </div>
-  </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
   <script>
     const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
     const SUPABASE_URL = 'https://nlqgwhhzxnpfvmbwccgz.supabase.co';
@@ -1822,7 +1810,9 @@
 
     function updateHeaderProfile(user) {
       const metadata = user?.user_metadata || {};
-      $('#userEmail').textContent = metadata.display_name?.trim() || user?.email || '';
+      const displayName = metadata.display_name?.trim() || user?.email || '';
+      $('#userEmail').textContent = displayName;
+      $('#profileBtn').title = displayName ? `${displayName} · 修改个人资料` : '修改个人资料';
       paintAvatar($('#headerAvatar'), metadata.avatar_url, avatarInitials(user));
     }
 
@@ -2348,7 +2338,6 @@
       const html = buildHtml();
       $('#preview').innerHTML = html || '<div class="empty"><div class="empty-icon">✦</div>在左侧输入文章内容<br>这里会实时生成排版</div>';
       enableBlockSelection();
-      $('#code').textContent = html;
     }
     function syncContentBlocks() {
       const previousBlocks = state.blocks || [];
@@ -2399,9 +2388,6 @@ function updateBlockToolbar() {
   if (!hasSelection) return;
 
   const isImage = state.selectedBlockType === 'image';
-  $('#selectedBlockLabel').textContent = isImage
-    ? `已选中：第 ${index + 1} 张图片`
-    : `已选中：第 ${index + 1} 个正文块`;
   $('#sizeControlLabel').textContent = isImage ? '图片宽度' : '段落宽度';
 
   $('#moveUpBtn').disabled = index === 0;
@@ -2918,11 +2904,11 @@ $('#analyzeReferenceBtn').addEventListener('click', async () => {
   setReferenceStatus('正在识别参考图的配色、层级和版式…');
   try {
     const plan = await requestAIReferencePlan();
-    applyReferencePlan(plan, 'AI仿排版');
+    applyReferencePlan(plan, '千问AI仿排版');
   } catch (error) {
     const fallbackPlan = localReferencePlan(referenceVisuals, $('#referenceMode').value);
     applyReferencePlan(fallbackPlan, '本地免费分析');
-    setReferenceStatus('云端AI尚未配置或暂时不可用，已自动使用本地免费分析', true);
+    setReferenceStatus('千问AI尚未配置或暂时不可用，已自动使用本地免费分析', true);
   } finally {
     button.disabled = false;
     button.textContent = originalText;
@@ -3218,15 +3204,129 @@ $('#deleteBlockBtn').addEventListener('click', async () => {
       try {
         const copied = copyRenderedArticle(html);
         if (!copied) throw new Error('copy command failed');
-        toast('已复制；粘贴到秀米前请关闭“粘贴时清除格式”');
+        toast('已复制，可粘贴到秀米、135编辑器或公众号后台');
       } catch (error) {
         toast('复制失败，请允许浏览器使用剪贴板后重试');
       }
     }
+
+    function safeExportName() {
+      return ($('#title').value.trim() || '公众号文章')
+        .replace(/[\\/:*?"<>|]/g, '-')
+        .slice(0, 80);
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = filename;
+      anchor.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1200);
+    }
+
+    async function waitForExportImages(container) {
+      const images = [...container.querySelectorAll('img')];
+      images.forEach(image => {
+        if (/^https?:/i.test(image.src)) image.crossOrigin = 'anonymous';
+      });
+      await Promise.all(images.map(image => {
+        if (image.complete && image.naturalWidth) return Promise.resolve();
+        return new Promise(resolve => {
+          const done = () => resolve();
+          image.addEventListener('load', done, { once: true });
+          image.addEventListener('error', done, { once: true });
+          setTimeout(done, 6000);
+        });
+      }));
+    }
+
+    async function createExportCanvas() {
+      const html = buildHtml();
+      if (!html) throw new Error('EMPTY_ARTICLE');
+      if (!window.html2canvas) throw new Error('EXPORT_LIBRARY_MISSING');
+
+      const stage = document.createElement('div');
+      stage.className = 'export-stage';
+      stage.innerHTML = `<article class="export-article">${html}</article>`;
+      document.body.appendChild(stage);
+
+      try {
+        await waitForExportImages(stage);
+        if (document.fonts?.ready) await document.fonts.ready;
+        return await window.html2canvas(stage.querySelector('.export-article'), {
+          scale: Math.min(2, Math.max(1.5, window.devicePixelRatio || 1.5)),
+          useCORS: true,
+          allowTaint: false,
+          backgroundColor: '#ffffff',
+          logging: false,
+          windowWidth: 757
+        });
+      } finally {
+        stage.remove();
+      }
+    }
+
+    async function exportCanvasImage(canvas, format, filename) {
+      const mime = format === 'jpg' ? 'image/jpeg' : 'image/png';
+      const quality = format === 'jpg' ? .92 : undefined;
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, mime, quality));
+      if (!blob) throw new Error('IMAGE_EXPORT_FAILED');
+      downloadBlob(blob, `${filename}.${format}`);
+    }
+
+    function exportCanvasPdf(canvas, filename) {
+      const JsPdf = window.jspdf?.jsPDF;
+      if (!JsPdf) throw new Error('EXPORT_LIBRARY_MISSING');
+      const pdf = new JsPdf({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const drawWidth = pageWidth - margin * 2;
+      const usableHeight = pageHeight - margin * 2;
+      const sliceHeight = Math.max(1, Math.floor(canvas.width * usableHeight / drawWidth));
+
+      for (let top = 0, page = 0; top < canvas.height; top += sliceHeight, page += 1) {
+        const height = Math.min(sliceHeight, canvas.height - top);
+        const slice = document.createElement('canvas');
+        slice.width = canvas.width;
+        slice.height = height;
+        const context = slice.getContext('2d');
+        context.fillStyle = '#fff';
+        context.fillRect(0, 0, slice.width, slice.height);
+        context.drawImage(canvas, 0, top, canvas.width, height, 0, 0, canvas.width, height);
+        if (page > 0) pdf.addPage();
+        const drawHeight = height * drawWidth / canvas.width;
+        pdf.addImage(slice.toDataURL('image/jpeg', .92), 'JPEG', margin, margin, drawWidth, drawHeight, undefined, 'FAST');
+      }
+      pdf.save(`${filename}.pdf`);
+    }
+
+    async function exportArticle() {
+      const button = $('#downloadBtn');
+      const originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = '生成中…';
+      try {
+        const format = $('#exportFormat').value;
+        const canvas = await createExportCanvas();
+        const filename = safeExportName();
+        if (format === 'pdf') exportCanvasPdf(canvas, filename);
+        else await exportCanvasImage(canvas, format, filename);
+        toast(`${format.toUpperCase()} 文件已导出`);
+      } catch (error) {
+        if (error?.message === 'EMPTY_ARTICLE') toast('请先输入文章内容');
+        else if (error?.message === 'EXPORT_LIBRARY_MISSING') toast('导出组件加载失败，请刷新网页后重试');
+        else toast('导出失败；如使用了外链图片，请先下载后重新上传');
+      } finally {
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    }
+
     $('#copyBtn').addEventListener('click', copyHtml);
-    $('#htmlBtn').addEventListener('click', () => { $('#modal').classList.add('open'); render() }); $('#closeModal').addEventListener('click', () => $('#modal').classList.remove('open')); $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') e.currentTarget.classList.remove('open') });
-    $('#downloadBtn').addEventListener('click', () => { const body = buildHtml(); if (!body) { toast('请先输入文章内容'); return } const file = `<!doctype html><html><head><meta charset="utf-8"><title>${esc($('#title').value || '公众号文章')}<\/title><\/head><body>${body}<\/body><\/html>`; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([file], { type: 'text/html' })); a.download = ($('#title').value.trim() || '公众号文章') + '.html'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 800); toast('HTML 文件已导出') });
-    $('#sampleBtn').addEventListener('click', () => { $('#title').value = '把复杂内容，变成一篇好读的推文'; $('#subtitle').value = '上传文字和图片，剩下的交给自动排版。'; $('#content').value = '## 为什么需要自动排版\n公众号文章的阅读场景主要发生在手机端。段落过长、层级不清或图片位置混乱，都会让读者快速离开。\n\n真正高效的工具，不应该让人反复调整字号和间距，而是先完成一套可靠的基础排版。\n\n> 好的版式不会抢走内容的注意力，它只是让信息更容易被看见。\n\n## 使用方法\n粘贴文章，上传图片，再选择适合内容气质的模板。预览确认后，可以直接复制到公众号编辑器。\n\n## 继续扩展\n后续还可以接入企业素材库、品牌色、固定页尾、二维码和团队模板，让每次发布都保持一致。'; syncContentBlocks(); render(); toast('示例内容已载入') });
+    $('#downloadBtn').addEventListener('click', exportArticle);
+    $('#sampleBtn').addEventListener('click', () => { $('#title').value = '把复杂内容，变成一篇好读的推文'; $('#subtitle').value = '上传文字和图片，剩下的交给自动排版。'; $('#content').value = '## 为什么需要自动排版\n公众号文章的阅读场景主要发生在手机端。段落过长、层级不清或图片位置混乱，都会让读者快速离开。\n\n真正高效的工具，不应该让人反复调整字号和间距，而是先完成一套可靠的基础排版。\n\n> 好的版式不会抢走内容的注意力，它只是让信息更容易被看见。\n\n## 使用方法\n粘贴文章，上传图片，再选择适合内容气质的模板。预览确认后，可以复制到秀米、135编辑器或公众号后台继续编辑。\n\n## 继续扩展\n后续还可以接入企业素材库、品牌色、固定页尾、二维码和团队模板，让每次发布都保持一致。'; syncContentBlocks(); render(); toast('示例内容已载入') });
     syncLayoutControls();
     syncContentBlocks();
     render();
