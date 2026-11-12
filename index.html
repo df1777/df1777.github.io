@@ -541,7 +541,7 @@
 
     .reference-mode-row {
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: minmax(0,1fr) minmax(0,1fr) auto;
       gap: 8px;
       align-items: center;
       margin-top: 10px
@@ -829,6 +829,14 @@
 
       .upload-row {
         grid-template-columns: 1fr
+      }
+
+      .reference-mode-row {
+        grid-template-columns: 1fr
+      }
+
+      .reference-mode-row .btn {
+        width: 100%
       }
 
       .preview-wrap {
@@ -1393,8 +1401,8 @@
             <section class="reference-layout-card" style="margin-top:0">
               <div class="reference-layout-head">
                 <div>
-                  <b>千问 AI 参考图仿排版</b>
-                  <small>先上传一张喜欢的排版截图，AI 会提取配色、层级与版式，不会把参考图插入正文。</small>
+                  <b>AI 创意参考排版</b>
+                  <small>上传喜欢的排版截图，AI 会提取配色、标题、背景、字体气质与图文结构。</small>
                 </div>
                 <label class="upload">上传参考图<input id="referenceImageFile" type="file" accept="image/jpeg,image/png,image/webp" /></label>
               </div>
@@ -1402,7 +1410,7 @@
                 <img id="referencePreviewImage" alt="参考排版图预览">
                 <div class="reference-preview-info">
                   <span class="reference-file-name" id="referenceFileName"></span>
-                  <div class="hint">图片会先在浏览器中压缩；千问 AI 不可用时自动使用免费的本地配色分析。</div>
+                  <div class="hint">图片会先在浏览器中压缩；云端 AI 不可用时自动使用本地创意分析。</div>
                   <div class="reference-palette" id="referencePalette"></div>
                   <button class="tiny" type="button" id="removeReferenceBtn">移除参考图</button>
                 </div>
@@ -1413,7 +1421,12 @@
                   <option value="faithful">高度参考：尽量接近</option>
                   <option value="content">内容优先：只提取视觉气质</option>
                 </select>
-                <button class="btn btn-primary" type="button" id="analyzeReferenceBtn">千问分析并套用</button>
+                <select class="control-select" id="creativeStrength" aria-label="AI创意强度">
+                  <option value="subtle">创意强度：轻微</option>
+                  <option value="balanced" selected>创意强度：明显</option>
+                  <option value="bold">创意强度：大胆</option>
+                </select>
+                <button class="btn btn-primary" type="button" id="analyzeReferenceBtn">AI 分析并套用</button>
               </div>
               <div class="reference-status" id="referenceStatus">未上传参考图</div>
             </section>
@@ -1473,6 +1486,36 @@
                 <button class="btn btn-outline" type="button" id="undoLayoutBtn" disabled>撤销上次排版</button>
               </div>
               <div class="module-note">方案只改变视觉样式，不会删除文字或图片；应用后仍可继续改色和逐块调整。</div>
+            </div>
+            <div class="control">
+              <div class="control-top"><span>文章背景</span></div>
+              <select class="control-select" id="backgroundVariant">
+                <option value="clean">纯净留白</option>
+                <option value="gradient">柔和渐变</option>
+                <option value="dots">轻点纹理</option>
+                <option value="grid">网格纸张</option>
+                <option value="paper">纸张层次</option>
+                <option value="ribbon">顶部色带</option>
+              </select>
+            </div>
+            <div class="control">
+              <div class="control-top"><span>文章主标题</span></div>
+              <select class="control-select" id="titleVariant">
+                <option value="clean">简洁标题</option>
+                <option value="accent-line">侧边强调</option>
+                <option value="boxed">边框标题</option>
+                <option value="gradient">渐变色块</option>
+                <option value="badge">居中徽章</option>
+              </select>
+            </div>
+            <div class="control">
+              <div class="control-top"><span>字体气质</span></div>
+              <select class="control-select" id="fontFamily">
+                <option value="sans">现代黑体</option>
+                <option value="serif">书刊宋体</option>
+                <option value="rounded">柔和圆体</option>
+                <option value="kai">手写楷体</option>
+              </select>
             </div>
             <div class="control">
               <div class="control-top"><span>小标题样式</span></div>
@@ -2074,6 +2117,9 @@
       imageVariant: 'bordered',
       dividerVariant: 'line',
       endingVariant: 'minimal',
+      backgroundVariant: 'clean',
+      titleVariant: 'clean',
+      fontFamily: 'sans',
       layoutHistory: [],
       images: [],
       blocks: [],
@@ -2092,10 +2138,34 @@
       const flush = () => { if (buf.length) { const t = buf.join(' ').trim(); if (t) blocks.push({ type: 'p', text: t }); buf = [] } };
       lines.forEach(line => { const t = line.trim(); if (!t) { flush(); return } if (/^#{1,3}\s+/.test(t)) { flush(); blocks.push({ type: 'h', text: t.replace(/^#{1,3}\s+/, '') }) } else if (/^>\s?/.test(t)) { flush(); blocks.push({ type: 'q', text: t.replace(/^>\s?/, '') }) } else { buf.push(t) } }); flush(); return blocks;
     }
+    const FONT_STACKS = {
+      sans: "'PingFang SC','Microsoft YaHei',Arial,sans-serif",
+      serif: "'Noto Serif SC','Songti SC','SimSun',serif",
+      rounded: "'PingFang SC','Microsoft YaHei',sans-serif",
+      kai: "'KaiTi','STKaiti','Kaiti SC',serif"
+    };
+    function articleBackgroundStyle(t) {
+      const base = `font-family:${FONT_STACKS[state.fontFamily] || FONT_STACKS.sans};max-width:100%;word-break:break-word;box-sizing:border-box;`;
+      if (state.backgroundVariant === 'gradient') return base + `padding:22px 18px 26px;border-radius:18px;background-color:#fff;background-image:linear-gradient(145deg,${t.soft} 0%,#fff 44%,${t.soft} 100%);`;
+      if (state.backgroundVariant === 'dots') return base + `padding:22px 18px 26px;border-radius:18px;background-color:#fff;background-image:radial-gradient(${t.line} 1px,transparent 1px);background-size:16px 16px;`;
+      if (state.backgroundVariant === 'grid') return base + `padding:22px 18px 26px;border-radius:18px;background-color:#fff;background-image:linear-gradient(${t.soft} 1px,transparent 1px),linear-gradient(90deg,${t.soft} 1px,transparent 1px);background-size:22px 22px;`;
+      if (state.backgroundVariant === 'paper') return base + `padding:24px 20px 28px;border:1px solid ${t.line};border-radius:6px;background:${t.soft};box-shadow:inset 0 0 0 7px rgba(255,255,255,.55);`;
+      if (state.backgroundVariant === 'ribbon') return base + `padding:30px 20px 26px;border-radius:16px;background-color:#fff;background-image:linear-gradient(180deg,${t.accent} 0,${t.accent} 10px,${t.soft} 10px,transparent 78px);`;
+      return base;
+    }
+    function titleStyle(t) {
+      const base = `color:${t.ink};font-size:${state.titleFontSize}px;line-height:1.35;font-weight:800;letter-spacing:.02em;box-sizing:border-box;`;
+      if (state.titleVariant === 'accent-line') return base + `margin:0 0 18px;padding:5px 0 5px 14px;border-left:6px solid ${t.accent};`;
+      if (state.titleVariant === 'boxed') return base + `margin:0 0 18px;padding:14px 16px;border:2px solid ${t.accent};border-radius:12px;background:#fff;box-shadow:5px 5px 0 ${t.soft};`;
+      if (state.titleVariant === 'gradient') return base + `margin:0 0 18px;padding:14px 16px;border-radius:14px;background:linear-gradient(135deg,${t.accent},${t.line});color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.12);`;
+      if (state.titleVariant === 'badge') return base + `display:table;margin:0 auto 20px;padding:8px 18px;border-radius:999px;background:${t.accent};color:#fff;text-align:center;`;
+      return base + `margin:0 0 12px;`;
+    }
     function styleMap() {
       const t = state.colors; return {
         t,
-        title: `margin:0 0 12px;color:${t.ink};font-size:${state.titleFontSize}px;line-height:1.35;font-weight:800;letter-spacing:.02em;`,
+        article: articleBackgroundStyle(t),
+        title: titleStyle(t),
         sub: `margin:0 0 22px;padding:12px 14px;background:${t.soft};border-left:3px solid ${t.accent};color:#6c6873;font-size:${state.subtitleFontSize}px;line-height:1.65;`,
         h: `margin:30px 0 14px;color:${t.accent};font-size:19px;line-height:1.5;font-weight:800;display:flex;align-items:center;gap:8px;`,
         p: `margin:0 0 18px;color:${t.ink};font-size:${state.fontSize}px;line-height:${state.lineHeight};text-align:justify;letter-spacing:.02em;`,
@@ -2274,7 +2344,7 @@
       const blocks = state.blocks;
       const s = styleMap();
       if (!title && !sub && !blocks.length && !state.images.length) return '';
-      let html = `<section style="font-family:'PingFang SC','Microsoft YaHei',sans-serif;max-width:100%;word-break:break-word;">`;
+      let html = `<section style="${s.article}">`;
       if (title) html += `<section style="${s.title}">${esc(title)}</section>`;
       if (sub) html += `<section style="${s.sub}">${esc(sub)}</section>`;
       let imageIndex = 0;
@@ -2463,25 +2533,29 @@ const LAYOUT_PRESETS = {
     colors: { accent: '#e8742c', soft: '#fff0df', ink: '#493a32', line: '#e8b88d' },
     titleFontSize: 27, subtitleFontSize: 14, fontSize: 16, lineHeight: 1.9,
     headingVariant: 'marker', paragraphVariant: 'plain', quoteVariant: 'quote-soft',
-    imageVariant: 'soft-frame', dividerVariant: 'dots', endingVariant: 'warm'
+    imageVariant: 'soft-frame', dividerVariant: 'dots', endingVariant: 'warm',
+    backgroundVariant: 'gradient', titleVariant: 'accent-line', fontFamily: 'rounded'
   },
   academic: {
     colors: { accent: '#216a8a', soft: '#edf6f8', ink: '#26363d', line: '#9fc4d2' },
     titleFontSize: 26, subtitleFontSize: 14, fontSize: 16, lineHeight: 1.95,
     headingVariant: 'number', paragraphVariant: 'plain', quoteVariant: 'quote-outline',
-    imageVariant: 'bordered', dividerVariant: 'line', endingVariant: 'minimal'
+    imageVariant: 'bordered', dividerVariant: 'line', endingVariant: 'minimal',
+    backgroundVariant: 'clean', titleVariant: 'boxed', fontFamily: 'serif'
   },
   activity: {
     colors: { accent: '#e85d3f', soft: '#fff1d9', ink: '#432f2a', line: '#f0a879' },
     titleFontSize: 29, subtitleFontSize: 15, fontSize: 16, lineHeight: 1.85,
     headingVariant: 'tag', paragraphVariant: 'soft-card', quoteVariant: 'quote-mark',
-    imageVariant: 'polaroid', dividerVariant: 'ornament', endingVariant: 'thanks'
+    imageVariant: 'polaroid', dividerVariant: 'ornament', endingVariant: 'thanks',
+    backgroundVariant: 'dots', titleVariant: 'gradient', fontFamily: 'rounded'
   },
   minimal: {
     colors: { accent: '#2d3138', soft: '#f4f5f6', ink: '#272a31', line: '#cfd3d8' },
     titleFontSize: 25, subtitleFontSize: 13, fontSize: 15, lineHeight: 1.9,
     headingVariant: 'underline', paragraphVariant: 'plain', quoteVariant: 'quote-center',
-    imageVariant: 'clean', dividerVariant: 'line', endingVariant: 'minimal'
+    imageVariant: 'clean', dividerVariant: 'line', endingVariant: 'minimal',
+    backgroundVariant: 'clean', titleVariant: 'clean', fontFamily: 'sans'
   }
 };
 
@@ -2501,6 +2575,9 @@ function captureLayoutSnapshot() {
     imageVariant: state.imageVariant,
     dividerVariant: state.dividerVariant,
     endingVariant: state.endingVariant,
+    backgroundVariant: state.backgroundVariant,
+    titleVariant: state.titleVariant,
+    fontFamily: state.fontFamily,
     blocks: state.blocks.map(block => ({ align: block.align, width: block.width, variant: block.variant })),
     images: state.images.map(image => ({ align: image.align, width: image.width, variant: image.variant }))
   };
@@ -2519,6 +2596,9 @@ function syncLayoutControls() {
     imageVariant: state.imageVariant,
     dividerVariant: state.dividerVariant,
     endingVariant: state.endingVariant,
+    backgroundVariant: state.backgroundVariant,
+    titleVariant: state.titleVariant,
+    fontFamily: state.fontFamily,
     headingMarkerStyle: state.headingMarkerStyle
   };
   Object.entries(simpleValues).forEach(([id, value]) => { if ($('#' + id)) $('#' + id).value = value; });
@@ -2557,7 +2637,7 @@ function applyLayoutPreset(name) {
   if (!preset) return;
   pushLayoutHistory();
   state.colors = { ...preset.colors };
-  ['titleFontSize', 'subtitleFontSize', 'fontSize', 'lineHeight', 'headingVariant', 'paragraphVariant', 'imageVariant', 'dividerVariant', 'endingVariant']
+  ['titleFontSize', 'subtitleFontSize', 'fontSize', 'lineHeight', 'headingVariant', 'paragraphVariant', 'imageVariant', 'dividerVariant', 'endingVariant', 'backgroundVariant', 'titleVariant', 'fontFamily']
     .forEach(key => { state[key] = preset[key]; });
   applyVariantsToExistingBlocks(preset.quoteVariant);
   syncLayoutControls();
@@ -2576,6 +2656,9 @@ function randomizeLayout() {
   state.imageVariant = pick(BLOCK_VARIANTS.image);
   state.dividerVariant = ['line', 'dots', 'ornament'][Math.floor(Math.random() * 3)];
   state.endingVariant = ['minimal', 'thanks', 'warm'][Math.floor(Math.random() * 3)];
+  state.backgroundVariant = ['clean', 'gradient', 'dots', 'grid', 'paper', 'ribbon'][Math.floor(Math.random() * 6)];
+  state.titleVariant = ['clean', 'accent-line', 'boxed', 'gradient', 'badge'][Math.floor(Math.random() * 5)];
+  state.fontFamily = ['sans', 'serif', 'rounded', 'kai'][Math.floor(Math.random() * 4)];
   syncLayoutControls();
   renderImages();
   render();
@@ -2586,7 +2669,7 @@ function undoLayoutChange() {
   const snapshot = state.layoutHistory.pop();
   if (!snapshot) return;
   state.colors = { ...snapshot.colors };
-  ['titleFontSize', 'subtitleFontSize', 'fontSize', 'lineHeight', 'borderWidth', 'borderRadius', 'headingMarkerStyle', 'headingMarkerSize', 'headingVariant', 'paragraphVariant', 'imageVariant', 'dividerVariant', 'endingVariant']
+  ['titleFontSize', 'subtitleFontSize', 'fontSize', 'lineHeight', 'borderWidth', 'borderRadius', 'headingMarkerStyle', 'headingMarkerSize', 'headingVariant', 'paragraphVariant', 'imageVariant', 'dividerVariant', 'endingVariant', 'backgroundVariant', 'titleVariant', 'fontFamily']
     .forEach(key => { state[key] = snapshot[key]; });
   snapshot.blocks.forEach((saved, index) => { if (state.blocks[index]) Object.assign(state.blocks[index], saved); });
   snapshot.images.forEach((saved, index) => { if (state.images[index]) Object.assign(state.images[index], saved); });
@@ -2732,15 +2815,21 @@ function localReferencePlan(visuals, mode) {
     quoteVariant: 'quote-soft',
     imageVariant: 'soft-frame',
     dividerVariant: 'dots',
-    endingVariant: 'warm'
+    endingVariant: 'warm',
+    backgroundVariant: 'gradient',
+    titleVariant: 'accent-line',
+    fontFamily: 'rounded',
+    headingMarkerStyle: 'bar',
+    titleFontSize: 28,
+    subtitleFontSize: 14
   };
 
   if (saturation > .38) {
-    Object.assign(plan, { headingVariant: 'tag', paragraphVariant: 'soft-card', quoteVariant: 'quote-mark', imageVariant: 'polaroid', dividerVariant: 'ornament', endingVariant: 'thanks' });
+    Object.assign(plan, { headingVariant: 'tag', paragraphVariant: 'soft-card', quoteVariant: 'quote-mark', imageVariant: 'polaroid', dividerVariant: 'ornament', endingVariant: 'thanks', backgroundVariant: 'dots', titleVariant: 'gradient', fontFamily: 'rounded', headingMarkerStyle: 'dot', titleFontSize: 30 });
   } else if (saturation < .16 || brightness < .48) {
-    Object.assign(plan, { headingVariant: 'underline', paragraphVariant: 'plain', quoteVariant: 'quote-center', imageVariant: 'clean', dividerVariant: 'line', endingVariant: 'minimal' });
+    Object.assign(plan, { headingVariant: 'underline', paragraphVariant: 'plain', quoteVariant: 'quote-center', imageVariant: 'clean', dividerVariant: 'line', endingVariant: 'minimal', backgroundVariant: 'clean', titleVariant: 'clean', fontFamily: 'serif', headingMarkerStyle: 'none', titleFontSize: 26 });
   } else if (edgeDensity > .24) {
-    Object.assign(plan, { headingVariant: 'number', paragraphVariant: 'outline-card', quoteVariant: 'quote-outline', imageVariant: 'bordered', dividerVariant: 'line', endingVariant: 'minimal' });
+    Object.assign(plan, { headingVariant: 'number', paragraphVariant: 'outline-card', quoteVariant: 'quote-outline', imageVariant: 'bordered', dividerVariant: 'line', endingVariant: 'minimal', backgroundVariant: 'grid', titleVariant: 'boxed', fontFamily: 'sans', headingMarkerStyle: 'square', titleFontSize: 28 });
   }
 
   if (mode === 'content') {
@@ -2752,6 +2841,15 @@ function localReferencePlan(visuals, mode) {
     plan.endingVariant = state.endingVariant;
   }
   if (mode === 'faithful' && edgeDensity > .2) plan.paragraphVariant = 'outline-card';
+  const strength = $('#creativeStrength')?.value || 'balanced';
+  if (strength === 'subtle') {
+    plan.backgroundVariant = 'clean';
+    plan.titleVariant = plan.titleVariant === 'gradient' ? 'accent-line' : plan.titleVariant;
+  } else if (strength === 'bold') {
+    if (plan.backgroundVariant === 'clean') plan.backgroundVariant = 'ribbon';
+    if (plan.titleVariant === 'clean') plan.titleVariant = 'boxed';
+    plan.titleFontSize = Math.max(30, plan.titleFontSize || 28);
+  }
   return plan;
 }
 
@@ -2777,6 +2875,12 @@ function applyReferencePlan(rawPlan, sourceLabel) {
   state.imageVariant = safePlanValue(rawPlan.imageVariant, imageValues, state.imageVariant);
   state.dividerVariant = safePlanValue(rawPlan.dividerVariant, ['line', 'dots', 'ornament', 'none'], state.dividerVariant);
   state.endingVariant = safePlanValue(rawPlan.endingVariant, ['minimal', 'thanks', 'warm'], state.endingVariant);
+  state.backgroundVariant = safePlanValue(rawPlan.backgroundVariant, ['clean', 'gradient', 'dots', 'grid', 'paper', 'ribbon'], state.backgroundVariant);
+  state.titleVariant = safePlanValue(rawPlan.titleVariant, ['clean', 'accent-line', 'boxed', 'gradient', 'badge'], state.titleVariant);
+  state.fontFamily = safePlanValue(rawPlan.fontFamily, ['sans', 'serif', 'rounded', 'kai'], state.fontFamily);
+  state.headingMarkerStyle = safePlanValue(rawPlan.headingMarkerStyle, ['bar', 'dot', 'square', 'diamond', 'none'], state.headingMarkerStyle);
+  if (Number.isFinite(Number(rawPlan.titleFontSize))) state.titleFontSize = Math.max(22, Math.min(38, Number(rawPlan.titleFontSize)));
+  if (Number.isFinite(Number(rawPlan.subtitleFontSize))) state.subtitleFontSize = Math.max(12, Math.min(20, Number(rawPlan.subtitleFontSize)));
   const quoteVariant = safePlanValue(rawPlan.quoteVariant, quoteValues, 'quote-soft');
   applyVariantsToExistingBlocks(quoteVariant);
 
@@ -2822,6 +2926,7 @@ async function requestAIReferencePlan() {
     body: {
       referenceImage: referenceImageDataUrl,
       mode: $('#referenceMode').value,
+      creativeStrength: $('#creativeStrength').value,
       article
     }
   });
@@ -2904,11 +3009,11 @@ $('#analyzeReferenceBtn').addEventListener('click', async () => {
   setReferenceStatus('正在识别参考图的配色、层级和版式…');
   try {
     const plan = await requestAIReferencePlan();
-    applyReferencePlan(plan, '千问AI仿排版');
+    applyReferencePlan(plan, 'AI创意排版');
   } catch (error) {
     const fallbackPlan = localReferencePlan(referenceVisuals, $('#referenceMode').value);
     applyReferencePlan(fallbackPlan, '本地免费分析');
-    setReferenceStatus('千问AI尚未配置或暂时不可用，已自动使用本地免费分析', true);
+    setReferenceStatus('AI暂时不可用，已自动使用本地创意分析', true);
   } finally {
     button.disabled = false;
     button.textContent = originalText;
@@ -2951,6 +3056,14 @@ $('#endingVariant').addEventListener('change', event => {
   pushLayoutHistory();
   state.endingVariant = event.target.value;
   render();
+});
+
+['backgroundVariant', 'titleVariant', 'fontFamily'].forEach(id => {
+  $('#' + id).addEventListener('change', event => {
+    pushLayoutHistory();
+    state[id] = event.target.value;
+    render();
+  });
 });
 
 $('#alignLeftBtn').addEventListener('click', () => {
