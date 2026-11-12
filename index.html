@@ -2857,7 +2857,61 @@ function safePlanValue(value, allowed, fallback) {
   return allowed.includes(value) ? value : fallback;
 }
 
+function enforceCreativeStrength(rawPlan) {
+  const strength = $('#creativeStrength')?.value || 'balanced';
+  const plan = {
+    ...rawPlan,
+    colors: { ...(rawPlan.colors || {}) },
+    blocks: Array.isArray(rawPlan.blocks) ? rawPlan.blocks.map(item => ({ ...item })) : [],
+    images: Array.isArray(rawPlan.images) ? rawPlan.images.map(item => ({ ...item })) : []
+  };
+
+  if (strength === 'subtle') {
+    if (plan.backgroundVariant !== 'clean') plan.backgroundVariant = 'clean';
+    if (plan.titleVariant === 'gradient' || plan.titleVariant === 'badge') plan.titleVariant = 'accent-line';
+    plan.titleFontSize = Math.min(28, Number(plan.titleFontSize) || 28);
+    return plan;
+  }
+
+  if (strength === 'balanced') {
+    if (plan.backgroundVariant === 'clean') plan.backgroundVariant = 'gradient';
+    if (plan.titleVariant === 'clean') plan.titleVariant = 'accent-line';
+    plan.titleFontSize = Math.max(28, Number(plan.titleFontSize) || 28);
+    return plan;
+  }
+
+  const saturation = referenceVisuals?.averageSaturation || 0;
+  const edgeDensity = referenceVisuals?.edgeDensity || 0;
+  plan.backgroundVariant = saturation > .3 ? 'dots' : edgeDensity > .2 ? 'grid' : 'ribbon';
+  plan.titleVariant = saturation > .24 ? 'gradient' : 'boxed';
+  plan.fontFamily = saturation > .32 ? 'rounded' : 'serif';
+  plan.titleFontSize = Math.max(32, Number(plan.titleFontSize) || 32);
+  plan.subtitleFontSize = Math.max(15, Number(plan.subtitleFontSize) || 15);
+  plan.headingVariant = saturation > .25 ? 'tag' : 'number';
+  plan.paragraphVariant = 'soft-card';
+  plan.quoteVariant = 'quote-mark';
+  plan.imageVariant = saturation > .25 ? 'polaroid' : 'soft-frame';
+  plan.dividerVariant = 'ornament';
+  plan.endingVariant = 'thanks';
+  plan.headingMarkerStyle = saturation > .25 ? 'dot' : 'diamond';
+
+  plan.blocks = state.blocks.map((block, index) => {
+    const existing = plan.blocks.find(item => Number(item.index) === index) || {};
+    let variant = existing.variant;
+    if (block.type === 'h') variant = index % 2 ? 'number' : plan.headingVariant;
+    if (block.type === 'q') variant = 'quote-mark';
+    if (block.type === 'p') variant = index % 3 === 0 ? 'highlight-card' : index % 3 === 1 ? 'soft-card' : 'plain';
+    return { ...existing, index, variant, align: existing.align || 'left', width: existing.width || 100 };
+  });
+  plan.images = state.images.map((image, index) => {
+    const existing = plan.images.find(item => Number(item.index) === index) || {};
+    return { ...existing, index, variant: plan.imageVariant, align: index % 2 ? 'right' : 'center', width: existing.width || (index % 2 ? 82 : 94) };
+  });
+  return plan;
+}
+
 function applyReferencePlan(rawPlan, sourceLabel) {
+  rawPlan = enforceCreativeStrength(rawPlan);
   const headingValues = BLOCK_VARIANTS.h.map(option => option[0]);
   const paragraphValues = BLOCK_VARIANTS.p.map(option => option[0]);
   const quoteValues = BLOCK_VARIANTS.q.map(option => option[0]);
