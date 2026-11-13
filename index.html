@@ -152,9 +152,9 @@
       align-items: center;
       gap: 8px;
       width: auto;
-      min-width: 0;
-      max-width: min(30vw, 310px);
-      flex: 0 1 auto;
+      min-width: 126px;
+      max-width: 330px;
+      flex: 0 0 auto;
       padding: 5px 10px 5px 6px;
       border: 1px solid var(--line);
       border-radius: 999px;
@@ -163,9 +163,10 @@
     }
 
     .profile-trigger .user-pill {
-      width: auto;
-      min-width: 1.5em;
-      max-width: 100%;
+      display: block;
+      width: max-content;
+      min-width: 64px;
+      max-width: 250px;
       padding: 0;
       border: 0;
       background: transparent
@@ -546,6 +547,30 @@
       flex: 0 0 auto;
       white-space: nowrap;
       writing-mode: horizontal-tb
+    }
+
+    .reference-remove-btn {
+      flex: 0 0 30px;
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid #eadfd4;
+      border-radius: 50%;
+      background: #fff8f2;
+      color: #9b6b52;
+      font-size: 18px;
+      line-height: 1;
+      font-family: Arial, sans-serif;
+      cursor: pointer
+    }
+
+    .reference-remove-btn:hover {
+      border-color: var(--brand);
+      background: #fff0df;
+      color: var(--brand)
     }
 
     .ai-prompt-field {
@@ -1349,7 +1374,7 @@
       .cover-actions { flex-direction: column }
       .cover-actions .btn { width: 100% }
       .user-pill { display: none }
-      .profile-trigger { padding-right: 6px }
+      .profile-trigger { min-width: 0; padding-right: 6px }
       .profile-grid { grid-template-columns: 1fr }
       #logoutBtn { padding-inline: 11px }
     }
@@ -1469,7 +1494,7 @@
                   <div class="hint">图片会先在浏览器中压缩；云端 AI 不可用时自动使用本地创意分析。</div>
                   <div class="reference-preview-actions">
                     <div class="reference-palette" id="referencePalette"></div>
-                    <button class="tiny" type="button" id="removeReferenceBtn">移除</button>
+                    <button class="reference-remove-btn" type="button" id="removeReferenceBtn" aria-label="移除参考图" title="移除参考图">×</button>
                   </div>
                 </div>
               </div>
@@ -3080,6 +3105,29 @@ async function requestAIReferencePlan() {
   return plan;
 }
 
+async function readableAIError(error) {
+  let status = Number(error?.status || 0);
+  let serverMessage = '';
+  const context = error?.context;
+  if (context) {
+    status = Number(context.status || status || 0);
+    try {
+      const payload = await context.clone().json();
+      serverMessage = String(payload?.error || payload?.message || '');
+    } catch (_) {
+      try { serverMessage = String(await context.clone().text()); } catch (_) {}
+    }
+  }
+  const raw = `${serverMessage} ${error?.message || ''}`.trim();
+  if (status === 429 || /daily ai layout limit|quota|rate limit/i.test(raw)) return '今日 AI 分析次数已用完';
+  if (status === 401 || /unauthorized|jwt/i.test(raw)) return '登录状态已失效，请重新登录';
+  if (/model.+unavailable|no provider|model.+not found/i.test(raw)) return '当前免费 AI 模型暂不可用';
+  if (/invalid json/i.test(raw)) return 'AI 返回内容格式异常，请再试一次';
+  if (status === 502 || /provider request failed/i.test(raw)) return '免费 AI 服务繁忙，请稍后重试';
+  if (status === 503 || /not configured|configuration/i.test(raw)) return 'AI 云端配置未完成';
+  return raw ? `AI 请求失败：${raw.slice(0, 90)}` : 'AI 请求失败，请稍后重试';
+}
+
 function clearReferenceImage() {
   if (referenceImageObjectUrl) URL.revokeObjectURL(referenceImageObjectUrl);
   referenceImageDataUrl = '';
@@ -3159,9 +3207,11 @@ $('#analyzeReferenceBtn').addEventListener('click', async () => {
     const plan = await requestAIReferencePlan();
     applyReferencePlan(plan, 'AI创意排版');
   } catch (error) {
+    console.error('AI reference layout failed:', error);
+    const failureReason = await readableAIError(error);
     const fallbackPlan = localReferencePlan(referenceVisuals, $('#referenceMode').value);
     applyReferencePlan(fallbackPlan, '本地免费分析');
-    setReferenceStatus('AI暂时不可用，已自动使用本地创意分析', true);
+    setReferenceStatus(`${failureReason}，已自动使用本地创意分析`, true);
   } finally {
     button.disabled = false;
     button.textContent = originalText;
